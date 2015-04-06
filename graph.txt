@@ -20,5 +20,5 @@ sexto
 letra_a primeiro
 
 setimo
-letra_a primeiro
+letra_c primeiro
 
