@@ -3,14 +3,12 @@ from state import State
 
 class Graph:
     '''
-    Graph
-    Description:
-       This class represents a graph by a list of states (its nodes) and a list of 
-       the letters (the alphabet) from which it is constructed. As the states
-       contain the information about the edges, a list of them fully describe a
-       graph.
-       There are methods to read a list of states from a file and to save it in the
-       same format.
+    This class represents a graph by a list of states (its nodes) and a list of 
+    the letters (the alphabet) from which it is constructed. As the states
+    contain the information about the edges, a list of them fully describe a
+    graph.
+    There are methods to read a list of states from a file and to save it in the
+    same format.
     '''
     
     def __init__(self, states, alphabet):
@@ -33,9 +31,11 @@ class Graph:
     '''
    
     def parseGraphFile(self, filePath):
-    #Input: file path containing a graph formatted as described above.
-    #Output: Updates the current graph with the structure described in the input.
-    
+        '''
+        Input: file path containing a graph formatted as described above.
+        Output: Updates the current graph with the structure described in the input.
+        '''
+        
         with open(filePath) as f:
             lines = f.readlines()   #Creates a list where each element is a line
                                     #from the input file.
@@ -101,8 +101,10 @@ class Graph:
         self.alphabet = alph
         
     def saveGraphFile(self, filePath):
-    #Input: File path where the graph will be saved.
-    #Output: File containing the description of the graph as stated above.
+        '''
+        Input: File path where the graph will be saved.
+        Output: File containing the description of the graph as stated above.
+        '''
         
         f = open(filePath, 'w') #File open as writeble.
         lines = [] #Each element will be a line to be written in the file.
