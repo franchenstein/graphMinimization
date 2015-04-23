@@ -1,24 +1,24 @@
-primeiro
-letra_a terceiro
-letra_b quinto
+1
+a 3
+b 5
 
-segundo
-letra_a primeiro
+2
+a 1
 
-terceiro
-letra_a segundo
-letra_b quarto
+3
+a 2
+b 4
 
-quarto
-letra_a primeiro
+4
+a 1
 
-quinto
-letra_a sexto
-letra_b quarto
+5
+a 6
+b 4
 
-sexto
-letra_a primeiro
+6
+a 1
 
-setimo
-letra_c primeiro
+7
+c 1
 

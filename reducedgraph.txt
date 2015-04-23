@@ -1,21 +1,7 @@
-primeiro
-letra_a terceiro
-letra_b quinto
+3,5
+0 2,4,6
+1 2,4,6
 
-segundo
-letra_a primeiro
-
-terceiro
-letra_a segundo
-letra_b quarto
-
-quarto
-letra_a primeiro
-
-quinto
-letra_a sexto
-letra_b quarto
-
-sexto
-letra_a primeiro
+2,4,6
+0 3,5
 

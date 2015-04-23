@@ -11,7 +11,9 @@ class Partition(State):
 
     def __init__(self, state):
         #A new partition is initialized with just one state:
-        State.__init__(self, state.name, state.outedges)
+        self.name = state.name
+        self.outedges = state.outedges
+        self.size = 1
         
     def addToPartition(self, state):
         '''
@@ -22,10 +24,15 @@ class Partition(State):
         #Checks to see whether the state is already in the partition:
         if state.name not in self.name:
             #Adds the state's name to the partition, separated by comma:
-            self.name = self.name + "," + state.name
+            if not self.name:
+                self.name = state.name
+            else:
+                self.name = self.name + "," + state.name
             #Adds each outedge of the added state to the partition's edges:
             for edge in state.outedges:
-                self.outedges.append(edge)
+                if edge not in self.outedges:
+                    self.outedges = self.outedges + [edge]
+            self.size += 1           
             
     def updateEdges(self, partition):
         '''
@@ -36,13 +43,13 @@ class Partition(State):
         outedges in order to include the whole new partition at its destination
         state. 
         '''
-    
-        i = 0
-        for edge in self.outedges:
-            #Checks if the destination state is included in the input
-            #partition's name.
-            if edge[1] in partition.name:
-                #If it is, outedges is updated: the destination state receives
-                #the input partition's name.
-                self.outedges[i] = (edge[0], partition.name)
-            i = i +1
+        #Checks if the destination state is included in the input partition's 
+        #name. If it is, outedges is updated: the destination state receives the
+        #input partition's name.
+        for i in range(0, len(self.outedges)):
+            if self.outedges[i][1] in partition.name:
+                edge = (self.outedges[i][0], partition.name)
+                if edge not in self.outedges:
+                    self.outedges[i] = edge
+                else:
+                    self.outedges.remove(self.outedges[i])
