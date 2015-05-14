@@ -72,7 +72,7 @@ def coarsestPartition(P, Q):
     for p in P:
          for q in Q:
                  r = intersection(p,q)
-                 if r.name:
+                 if r.name: #Empty intersections are disregarded.
                     if l:
                         names = [element.name for element in l]
                         if r.name not in names:
@@ -82,8 +82,7 @@ def coarsestPartition(P, Q):
     return l
     
 def intersection(p1, p2):
-    name = ""
-    outedges = []    
+    name = "" 
     for a in p1.name:
         for b in p2.name:
             if (a is not ',') and (a == b):
@@ -91,7 +90,7 @@ def intersection(p1, p2):
                     name = a
                 else:
                     name = name + "," + a                    
-    return partition.Partition(state.State(name, outedges))
+    return partition.Partition(state.State(name, []))
                 
 def splitting(p, a, Q):
     p1 = partition.Partition(state.State("",[]))
@@ -136,11 +135,11 @@ def initialPartition(g):
     
 def moore(g):
     #Initial partition based on outgoing edges:
-    P = initialPartition(g)
-    P_alphabet = []
+    P = initialPartition(g)   
     #The loop will end when no new partitions are acquired:
     while True:
-        P_old = P #Stores the current partition before the loop  
+        P_old = P #Stores the current partition before the loop
+        P_alphabet = []  
         for a in g.alphabet:
             pa = [] #Stores the splitted partitions for the current letter
             for p in P.partitions:
@@ -149,21 +148,19 @@ def moore(g):
                 #Eliminates empty partitions:
                 validSplits = [split for split in splits if split.name != ""]
                 #Append the current letter's partitions:
-                pa.append(validSplits)            
-            Pa = []        
-            for q1 in pa:
-                for q2 in pa:
-                    if q1 != q2:
-                        cp = coarsestPartition(q1,q2)
-                        Pa = noRedundancy(cp, Pa) 
-            P_alphabet.append(Pa)        
-        P_b = []            
-        for pb1 in P_alphabet:
-            for pb2 in P_alphabet:
-                if pb1 != pb2:
-                    pb = coarsestPartition(pb1, pb2)
-                    P_b = noRedundancy(pb, P_b)
-                                    
+                pa.append(validSplits)
+                        
+            Pa = pa[0]
+            for q in pa[1:]:
+                cp = coarsestPartition(Pa, q)
+                Pa = noRedundancy(cp, Pa)
+            P_alphabet.append(Pa)         
+        
+        P_b = P_alphabet[0]
+        for pb in P_alphabet[1:]:
+            cp = coarsestPartition(P_b, pb)
+            P_b = noRedundancy(cp, P_b)    
+                                   
         newPartitions = coarsestPartition(P.partitions, P_b)
         newNames = [p.name for p in newPartitions]
         oldNames = [p.name for p in P_old.partitions]
