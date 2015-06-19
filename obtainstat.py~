@@ -48,7 +48,7 @@ def calcCondProbs(P, L, alphabet):
         l += 1
     return P_cond  
     
-def calcCondEntropy(P, P_cond, L):
+def calcCondEntropy(P, P_cond, L, alphabet):
     h = []
     n = 0
     l = 0
