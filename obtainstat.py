@@ -1,5 +1,6 @@
 from random import random
 from numpy import log2
+import matplotlib.pyplot as plt
 
 def calcProbs(data, L):
     l = 1
@@ -45,7 +46,28 @@ def calcCondProbs(P, L, alphabet):
                     d[cond] = 0.0
         P_cond.append(d)
         l += 1
-    return P_cond   
+    return P_cond  
+    
+def calcCondEntropy(P, P_cond, L, alphabet):
+    h = []
+    n = 0
+    l = 0
+    while l < L:
+        acc = 0
+        l1 = P[l]
+        l2 = P_cond[l]
+        for a in l1:
+            if l == 0:
+                acc -= l1[a]*log2(l1[a])
+            else:
+                s = a[-1] + "|" + a[0:-1]
+                if not l2[s] == 0:
+                    acc -= l1[a]*log2(l2[s])
+        h.append(acc)
+        l += 1
+    plt.plot(h)
+    plt.show()
+    return h                 
     
 def evenShift(L, p00):
     count = 1
