@@ -90,11 +90,11 @@ def saveAsStates(P_cond, alphabet, filePath):
                     s = str(probDict[ a + "|" + state])
                     n = state[i < L :] + a
                     lines.append( a + " " + n + " " + s + "\n")
-                lines.append("\n")    
+                lines.append("\n")
+        lines.append("\n")    
         i += 1
     f.writelines(lines)
-    f.close()    
-    return lines                              
+    f.close()                              
     
 def evenShift(L, p00):
     count = 1

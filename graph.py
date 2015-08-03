@@ -1,4 +1,4 @@
- from state import State
+from state import State
 
 
 class Graph:
@@ -69,32 +69,11 @@ class Graph:
                         name = name + line[j]
                         j = j + 1
                 
-                else: #i != 0 means we're searching for outedges            
-                    j = 0
-                    
-                    #Initializes and edge with blank attributes:
-                    edge = ''
-                    stateName = ''
-                   
-                    #Everything before the space is the edge's label
-                    while line[j] != ' ':
-                        edge = edge + line[j]
-                        j = j + 1
-                    
-                    #This will include the label in the new alphabet:
-                    if edge not in alph:
-                        alph.append(edge)
-                    
-                    k = j + 1 #The loop will continue after the space.
-                        
-                    #The destination state's name is between the space and the
-                    #end of the line.    
-                    while line[k] != '\n':
-                        stateName = stateName + line[k]
-                        k = k + 1
-                        
-                    #Adds the newly created outedge to the list.    
-                    outedges.append((edge, stateName))
+                else: #i != 0 means we're searching for outedges  
+                    outEdge = line.split()
+                    if outEdge[1] not in alph:
+                        alph.append(outEdge[1])   
+                    outedges.append(tuple(outEdge))
         
         #After going through the file, updates the graph:        
         self.states = stateList        
@@ -116,9 +95,9 @@ class Graph:
             for e in s.outedges:
                 i = 1
                 edgeline = ''
-                for elements in e:
-                    conn = ' ' if i < len(e) else '\n')
-                    edgeline = edgeline + e + conn
+                for element in e:
+                    conn = ' ' if i < len(e) else '\n'
+                    edgeline = edgeline + element + conn
                     i += 1
                 lines.append(edgeline)
             lines.append('\n') #Blank line indicating end of state
