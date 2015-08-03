@@ -114,7 +114,13 @@ class Graph:
             lines.append(s.name + '\n') #The first element will be the name
             #Each out edge will be appended as the edge space destination:
             for e in s.outedges:
-                lines.append(e[0] + ' ' + e[1] + '\n')
+                i = 1
+                edgeline = ''
+                for elements in e:
+                    conn = ' ' if i < len(e) else '\n')
+                    edgeline = edgeline + e + conn
+                    i += 1
+                lines.append(edgeline)
             lines.append('\n') #Blank line indicating end of state
             
         f.writelines(lines) #Lines are written to file

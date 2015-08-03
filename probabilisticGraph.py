@@ -1,5 +1,6 @@
 import graph
 import obtainstat
+import probabilisticState
 from scipy import stats
 
 class ProbabilisticGraph(Graph):
