@@ -6,7 +6,7 @@ def calcProbs(data, L):
     l = 1
     probs = []
     alphabet = []
-    while l <= L:
+    while l <= L + 1:
         d = dict()
         r = range(0, len(data) - (l - 1))
         for i in r:
@@ -34,12 +34,11 @@ def calcCondProbs(P, L, alphabet):
     while l < L:
         d = {}
         l1 = P[l]
-        l2 = P[l] if l == (L-1) else P[l+1]
+        l2 = P[l+1]
         for s in alphabet:
             for a in l1:
                 cond = s + "|" + a
-                b = a if l < L else a[1:]
-                t = b + s
+                t = a + s
                 if t in l2.keys():
                     d[cond] = l2[t]/l1[a]
                 else:
@@ -67,7 +66,35 @@ def calcCondEntropy(P, P_cond, L):
         l += 1
     plt.plot(h)
     plt.show()
-    return h                 
+    return h     
+    
+def saveAsStates(P_cond, alphabet, filePath):
+    f = open(filePath, 'w') #File open as writeble.
+    lines = []
+    i = 0
+    L = len(P_cond)
+    
+    for probDict in P_cond:
+        ks = probDict.keys()
+        if i == 0:
+            lines.append("e\n")
+            for k in ks:
+                lines.append(k + " " + k + " " + str(probDict[k]) + "\n")
+            lines.append("\n")
+        else:
+            names = [x[(x.index("|") + 1):] for x in ks]
+            states = list(set(names))
+            for state in states:
+                lines.append(state + "\n")
+                for a in alphabet:
+                    s = str(probDict[ a + "|" + state])
+                    n = state[i < L :] + a
+                    lines.append( a + " " + n + " " + s + "\n")
+                lines.append("\n")    
+        i += 1
+    f.writelines(lines)
+    f.close()    
+    return lines                              
     
 def evenShift(L, p00):
     count = 1
