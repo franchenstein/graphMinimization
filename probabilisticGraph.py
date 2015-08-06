@@ -14,7 +14,7 @@ class ProbabilisticGraph(graph.Graph):
             [X, p] = stats.chisquare(morphA, morphB)         
         elif test == "ks":
             [KS, p] = stats.ks_2samp(morphA, morphB)
-        return [p > alpha, p]   
+        return [p >= alpha, p]   
         
         
         

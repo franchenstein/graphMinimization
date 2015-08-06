@@ -71,8 +71,8 @@ class Graph:
                 
                 else: #i != 0 means we're searching for outedges  
                     outEdge = line.split()
-                    if outEdge[1] not in alph:
-                        alph.append(outEdge[1])   
+                    if outEdge[0] not in alph:
+                        alph.append(outEdge[0])   
                     outedges.append(tuple(outEdge))
         
         #After going through the file, updates the graph:        
