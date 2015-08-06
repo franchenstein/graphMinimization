@@ -33,4 +33,14 @@ class State:
     
         #Finds and returns an edge label from outedges based on a state name.
         matches = [x[0] for x in self.outedges if x[1] == stateName]
-        return matches[0]    
+        return matches[0]
+        
+    def obtainChildren(self, g):
+        '''
+        Input: graph in which the children states from the current states will
+               be searched.
+        Output: list with current state's children
+        '''
+        childrenNames = [o[1] for o in self.outedges]
+        children = [s for s in g.states if s.name in childrenNames]
+        return children    
