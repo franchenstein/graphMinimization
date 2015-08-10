@@ -82,16 +82,15 @@ def saveAsStates(P_cond, alphabet, filePath):
                 lines.append(k + " " + k + " " + str(probDict[k]) + "\n")
             lines.append("\n")
         else:
-            names = [x[:x.index("|")] + x[(x.index("|") + 1):] for x in ks]
+            names = [x[(x.index("|") + 1):] for x in ks]
             states = list(set(names))
             for state in states:
                 lines.append(state + "\n")
                 for a in alphabet:
                     s = str(probDict[ a + "|" + state])
-                    n = state[i < L :] + a
+                    n = a + state[i == (L - 1):]
                     lines.append( a + " " + n + " " + s + "\n")
-                lines.append("\n")
-        lines.append("\n")    
+                lines.append("\n")    
         i += 1
     f.writelines(lines)
     f.close()                              

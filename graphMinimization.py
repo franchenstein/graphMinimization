@@ -18,10 +18,7 @@ def main(argv):
     g.parseGraphFile(inFile) #Updated with graph on file
     oldSize = len(g.states)
     newSize = -1
-    while oldSize != newSize:
-        oldSize = newSize
-        g = g.removeUnreachableStates() #Removes unreachable states
-        newSize = len(g.states)
+    g = g.removeUnreachableStates()
     gp = moore(g)
     g = graph.Graph(recoverEdgesForPartition(g, gp), g.alphabet)
     g.saveGraphFile(outFile) #Saves graph to file

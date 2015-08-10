@@ -117,6 +117,7 @@ class Graph:
         reduced graph is created and returned. 
         '''
         
+        oldSize = len(self.states)
         reachableStates = [] #This will receive the reachable states' names.
         aux = [x.outedges for x in self.states] #Creates a list of all states' outedges.
         
@@ -142,6 +143,11 @@ class Graph:
                     #If it's not, it is included to the new alphabet.
                     newAlphabet.append(outedge[0])
         
-        #Creates a new graph, with no unreachable states:
+        #Creates a new graph, without previous unreachable states:
         reducedGraph = Graph(newStates, newAlphabet)
+        newSize = len(reducedGraph.states)
+        
+        if (oldSize != newSize):
+            reducedGraph = reducedGraph.removeUnreachableStates()
+        
         return reducedGraph
