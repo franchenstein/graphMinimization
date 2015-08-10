@@ -82,7 +82,7 @@ def saveAsStates(P_cond, alphabet, filePath):
                 lines.append(k + " " + k + " " + str(probDict[k]) + "\n")
             lines.append("\n")
         else:
-            names = [x[(x.index("|") + 1):] for x in ks]
+            names = [x[:x.index("|")] + x[(x.index("|") + 1):] for x in ks]
             states = list(set(names))
             for state in states:
                 lines.append(state + "\n")
