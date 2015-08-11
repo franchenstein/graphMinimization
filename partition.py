@@ -13,7 +13,7 @@ class Partition(State):
         #A new partition is initialized with just one state:
         self.name = state.name
         self.outedges = state.outedges
-        self.size = 1
+        self.size = 0 if not state.name else 1
         
     def addToPartition(self, state):
         '''

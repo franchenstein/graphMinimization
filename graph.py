@@ -144,7 +144,9 @@ class Graph:
                     newAlphabet.append(outedge[0])
         
         #Creates a new graph, without previous unreachable states:
-        reducedGraph = Graph(newStates, newAlphabet)
+        reducedGraph = self
+        reducedGraph.states = newStates
+        reducedGraph.alphabet = newAlphabet
         newSize = len(reducedGraph.states)
         
         if (oldSize != newSize):

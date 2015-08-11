@@ -1,9 +1,10 @@
 #!/usr/bin/env
 import sys, getopt
-import state
-import graph
+import probabilisticState
+import probabilisticGraph
 import partition
 import partitionset
+import probabilisticPartition
 
 """ 
 This script will take a graph described in an user-defined filepath and create
@@ -14,7 +15,7 @@ as desired by the user.
 
 def main(argv):
     inFile, outFile = readInput(argv)
-    g = graph.Graph([],[]) #Blank graph
+    g = probabilisticGraph.ProbabilisticGraph([],[]) #Blank graph
     g.parseGraphFile(inFile) #Updated with graph on file
     g = g.removeUnreachableStates()
     gp = moore(g)
@@ -43,12 +44,12 @@ def intersection(p1, p2):
                 if not name:
                     name = a
                 else:
-                    name = name + "," + a                    
-    return partition.Partition(state.State(name, []))
+                    name = name + "," + a                  
+    return partition.Partition(probabilisticState.ProbabilisticState(name, []))
                 
 def splitting(p, a, Q):
-    p1 = partition.Partition(state.State("",[]))
-    p2 = partition.Partition(state.State("",[]))    
+    p1 = partition.Partition(probabilisticState.ProbabilisticState("",[]))
+    p2 = partition.Partition(probabilisticState.ProbabilisticState("",[]))    
     for q in Q:
         possibleLabels = [edge[0] for edge in q.outedges]
         if a in possibleLabels:
@@ -62,30 +63,21 @@ def splitting(p, a, Q):
     return [p1, p2] 
     
 def initialPartition(g):
-    partitions = []
-    for state in g.states:
-        sEdgeLetters = []
-        for edge in state.outedges:
-            if edge[0] not in sEdgeLetters:
-                sEdgeLetters.append(edge[0])
-        if not partitions:
-            partitions.append(partition.Partition(state))
-        else:
-            i = 0
-            for p in partitions:
-                pEdgeLetters = []
-                for edge in p.outedges:
-                    if edge[0] not in pEdgeLetters:
-                        pEdgeLetters.append(edge[0])
-                if sEdgeLetters == pEdgeLetters:
-                    p.addToPartition(state)
-                    break
-                else:
-                    i += 1
-            if i == len(partitions):
-                partitions.append(partition.Partition(state))
-    P = partitionset.PartitionSet(partitions)
-    return P            
+
+    states = g.states
+    partitions = [probabilisticPartition.ProbabilisticPartition(states.pop(0))]
+    for s in states:
+        i = 0
+        for p in partitions:
+            res = g.compareMorphs(s.outedges, p.morph(), 0.95, 'chi-squared')
+            if res[0]:
+                p.addToPartition(s)
+                break
+            i += 1
+        if i == len(partitions):
+            partitions.append(probabilisticPartition.ProbabilisticPartition(s))
+    
+    return partitionset.PartitionSet(partitions)                   
     
 def moore(g):
     #Initial partition based on outgoing edges:
