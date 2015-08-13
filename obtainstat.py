@@ -88,8 +88,8 @@ def saveAsStates(P_cond, alphabet, filePath):
                 lines.append(state + "\n")
                 for a in alphabet:
                     s = str(probDict[ a + "|" + state])
-                    t = state if i < (L - 1) else state[:-1]
-                    n = a + t
+                    t = state if i < (L - 1) else state[1:]
+                    n = t + a
                     lines.append( a + " " + n + " " + s + "\n")
                 lines.append("\n")    
         i += 1

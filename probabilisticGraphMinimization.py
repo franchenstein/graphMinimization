@@ -19,7 +19,7 @@ def main(argv):
     g.parseGraphFile(inFile) #Updated with graph on file
     g = g.removeUnreachableStates()
     gp = moore(g)
-    g = graph.Graph(recoverEdgesForPartition(g, gp), g.alphabet)
+    g = probabilisticGraph.ProbabilisticGraph(recoverEdgesForPartition(g, gp), g.alphabet)
     g.saveGraphFile(outFile) #Saves graph to file
 
 def coarsestPartition(P, Q):    
@@ -37,10 +37,12 @@ def coarsestPartition(P, Q):
     return l
     
 def intersection(p1, p2):
-    name = "" 
-    for a in p1.name:
-        for b in p2.name:
-            if (a is not ',') and (a == b):
+    name = ""
+    p1names = p1.name.split(",")
+    p2names = p2.name.split(",")
+    for a in p1names:
+        for b in p2names:
+            if a == b:
                 if not name:
                     name = a
                 else:
@@ -76,6 +78,15 @@ def initialPartition(g):
             i += 1
         if i == len(partitions):
             partitions.append(probabilisticPartition.ProbabilisticPartition(s))
+            
+    for p in partitions:
+        print "----------------------------------------------"
+        print "|name: " + p.name
+        print "|edges: "
+        for e in p.outedges:
+            print "|     " + str(e)
+        print "----------------------------------------------"
+        print "\n"  
     
     return partitionset.PartitionSet(partitions)                   
     
@@ -96,8 +107,8 @@ def moore(g):
                 #Append the current letter's partitions:
                 pa.append(validSplits)
                         
-            Pa = pa[0]
-            for q in pa[1:]:
+            Pa = pa.pop(0)
+            for q in pa:
                 cp = coarsestPartition(Pa, q)
                 Pa = noRedundancy(cp, Pa)
             P_alphabet.append(Pa)         
@@ -139,7 +150,7 @@ def recoverEdgesForPartition(g, ps):
                             newEdges.append((edge[0], name))
                             break 
                 break       
-        newStates.append(state.State(p.name, newEdges))
+        newStates.append(probabilisticState.ProbabilisticState(p.name, newEdges))
     return newStates
     
 def readInput(argv):

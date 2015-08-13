@@ -36,14 +36,16 @@ def coarsestPartition(P, Q):
     return l
     
 def intersection(p1, p2):
-    name = "" 
-    for a in p1.name:
-        for b in p2.name:
-            if (a is not ',') and (a == b):
+    name = ""
+    p1names = p1.name.split(",")
+    p2names = p2.name.split(",")
+    for a in p1names:
+        for b in p2names:
+            if a == b:
                 if not name:
                     name = a
                 else:
-                    name = name + "," + a                    
+                    name = name + "," + a                     
     return partition.Partition(state.State(name, []))
                 
 def splitting(p, a, Q):
@@ -83,7 +85,8 @@ def initialPartition(g):
                 else:
                     i += 1
             if i == len(partitions):
-                partitions.append(partition.Partition(state))
+                partitions.append(partition.Partition(state))              
+    
     P = partitionset.PartitionSet(partitions)
     return P            
     
