@@ -1,6 +1,7 @@
 from random import random
 from numpy import log2
 import matplotlib.pyplot as plt
+import shifts
 
 def calcProbs(data, L):
     l = 1
@@ -88,29 +89,18 @@ def saveAsStates(P_cond, alphabet, filePath):
                 lines.append(state + "\n")
                 for a in alphabet:
                     s = str(probDict[ a + "|" + state])
-                    t = state if i < (L - 1) else state[1:]
-                    n = t + a
-                    lines.append( a + " " + n + " " + s + "\n")
+                    if float(s) > 0.0:
+                        t = state if i < (L - 1) else state[1:]
+                        n = t + a
+                        lines.append( a + " " + n + " " + s + "\n")
                 lines.append("\n")    
         i += 1
     f.writelines(lines)
-    f.close()                              
+    f.close()
     
-def evenShift(L, p00):
-    count = 1
-    out = []
-    states = [0, 1]
-    #Initialize state:
-    r = random()
-    state = states[0] if r < 0.5 else states[1]
-    while count <= L:
-        r = random()
-        if state == states[0]:
-            a = 0 if r < p00 else 1
-            state = states[0] if r < p00 else states[1]
-        else:
-            a = 1
-            state = states[0]
-        out.append(a)
-        count +=1
-    return out     
+def generate(shiftType, L, p):
+    s = shiftType.lower()
+    if s == "even":
+        return shifts.evenShift(L, p)
+    elif s == "bin":
+        return shifts.binShift(L, p)                                   
