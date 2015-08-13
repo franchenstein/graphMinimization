@@ -36,7 +36,7 @@ def coarsestPartition(P, Q):
                         l.append(r)             
     return l
     
-def intersection(p1, p2):
+def intersection(p1, p2):   
     name = ""
     p1names = p1.name.split(",")
     p2names = p2.name.split(",")
@@ -86,7 +86,7 @@ def initialPartition(g):
         for e in p.outedges:
             print "|     " + str(e)
         print "----------------------------------------------"
-        print "\n"  
+        print "\n"
     
     return partitionset.PartitionSet(partitions)                   
     
@@ -107,8 +107,8 @@ def moore(g):
                 #Append the current letter's partitions:
                 pa.append(validSplits)
                         
-            Pa = pa.pop(0)
-            for q in pa:
+            Pa = pa[0]
+            for q in pa[1:]:
                 cp = coarsestPartition(Pa, q)
                 Pa = noRedundancy(cp, Pa)
             P_alphabet.append(Pa)         
