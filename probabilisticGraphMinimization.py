@@ -30,23 +30,22 @@ def coarsestPartition(P, Q):
                  if r.name: #Empty intersections are disregarded.
                     if l:
                         names = [element.name for element in l]
+                        print "names:"
+                        for name in names:
+                            print name
+                        print "\n"
+                        print r.name
                         if r.name not in names:
                             l.append(r)
                     else:
                         l.append(r)             
     return l
     
-def intersection(p1, p2):   
-    name = ""
+def intersection(p1, p2): 
     p1names = p1.name.split(",")
     p2names = p2.name.split(",")
-    for a in p1names:
-        for b in p2names:
-            if a == b:
-                if not name:
-                    name = a
-                else:
-                    name = name + "," + a                  
+    n = [x for x in p1names if x in p2names]
+    name = ','.join(n)
     return partition.Partition(probabilisticState.ProbabilisticState(name, []))
                 
 def splitting(p, a, Q):
@@ -67,7 +66,7 @@ def splitting(p, a, Q):
 def initialPartition(g):
 
     states = g.states
-    partitions = [probabilisticPartition.ProbabilisticPartition(states.pop(0))]
+    partitions = [probabilisticPartition.ProbabilisticPartition(states[0])]
     for s in states:
         i = 0
         for p in partitions:
@@ -79,14 +78,14 @@ def initialPartition(g):
         if i == len(partitions):
             partitions.append(probabilisticPartition.ProbabilisticPartition(s))
             
-    for p in partitions:
-        print "----------------------------------------------"
-        print "|name: " + p.name
-        print "|edges: "
-        for e in p.outedges:
-            print "|     " + str(e)
-        print "----------------------------------------------"
-        print "\n"
+    #for p in partitions:
+    #    print "----------------------------------------------"
+    #    print "|name: " + p.name
+    #    print "|edges: "
+    #    for e in p.outedges:
+    #        print "|     " + str(e)
+    #    print "----------------------------------------------"
+    #    print "\n" 
     
     return partitionset.PartitionSet(partitions)                   
     
@@ -95,26 +94,31 @@ def moore(g):
     P = initialPartition(g)   
     #The loop will end when no new partitions are acquired:
     while True:
+        #print "***************************************************************"
         P_old = P #Stores the current partition before the loop
         P_alphabet = []  
         for a in g.alphabet:
+            print a
             pa = [] #Stores the splitted partitions for the current letter
             for p in P.partitions:
                 #Creates partitions based on the follower sets:
                 splits = splitting(p, a, g.states)
                 #Eliminates empty partitions:
                 validSplits = [split for split in splits if split.name != ""]
+                #print "-------"
+                #for v in validSplits:
+                #    print v.name
                 #Append the current letter's partitions:
                 pa.append(validSplits)
                         
-            Pa = pa[0]
-            for q in pa[1:]:
+            Pa = pa.pop(0)
+            for q in pa:
                 cp = coarsestPartition(Pa, q)
                 Pa = noRedundancy(cp, Pa)
             P_alphabet.append(Pa)         
         
-        P_b = P_alphabet[0]
-        for pb in P_alphabet[1:]:
+        P_b = P_alphabet.pop(0)
+        for pb in P_alphabet:
             cp = coarsestPartition(P_b, pb)
             P_b = noRedundancy(cp, P_b)    
                                    
@@ -124,7 +128,16 @@ def moore(g):
         if newNames == oldNames:
             break
         else:
-            P.partitions = newPartitions           
+            P.partitions = newPartitions     
+            
+        #for p in P.partitions:
+        #    print "----------------------------------------------"
+        #    print "|name: " + p.name
+        #    print "|edges: "
+        #    for e in p.outedges:
+        #        print "|     " + str(e)
+        #    print "----------------------------------------------"
+        #    print "\n"           
     return P 
     
 def noRedundancy(l1, l2):
