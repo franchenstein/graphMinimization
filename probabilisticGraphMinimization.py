@@ -20,7 +20,60 @@ def main(argv):
     g = g.removeUnreachableStates()
     gp = moore(g)
     g = probabilisticGraph.ProbabilisticGraph(recoverEdgesForPartition(g, gp), g.alphabet)
-    g.saveGraphFile(outFile) #Saves graph to file
+    g.saveGraphFile(outFile) #Saves graph to file                 
+    
+def moore(g):
+    #Initial partition based on outgoing edges:
+    P = initialPartition(g)   
+    #The loop will end when no new partitions are acquired:
+    while True:
+        P_old = P #Stores the current partition before the loop
+        P_alphabet = []  
+        for a in g.alphabet:
+            pa = [] #Stores the splitted partitions for the current letter
+            for p in P.partitions:
+                #Creates partitions based on the follower sets:
+                splits = splitting(p, a, g.states)
+                #Eliminates empty partitions:
+                #validSplits = [split for split in splits if split.name != ""]
+                pa.append(splits)
+                        
+            Pa = pa.pop(0)
+            for q in pa:
+                Pa = coarsestPartition(Pa, q)
+                #Pa = noRedundancy(cp, Pa)
+            P_alphabet.append(Pa)         
+        
+        P_b = P_alphabet.pop(0)
+        for pb in P_alphabet:
+            P_b = coarsestPartition(P_b, pb)
+            #P_b = noRedundancy(cp, P_b)    
+                                   
+        newPartitions = coarsestPartition(P.partitions, P_b)
+        #newPartitions = noRedundancy(newPartitions, P.partitions)
+        newNames = [p.name for p in newPartitions]
+        oldNames = [p.name for p in P_old.partitions]
+        if newNames == oldNames:
+            break
+        else:
+            P.partitions = newPartitions               
+    return P
+    
+def initialPartition(g):
+
+    states = g.states
+    partitions = [probabilisticPartition.ProbabilisticPartition(states[0])]
+    for s in states:
+        i = 0
+        for p in partitions:
+            res = g.compareMorphs(s.outedges, p.morph(), 0.95, 'chi-squared')
+            if res[0]:
+                p.addToPartition(s)
+                break
+            i += 1
+        if i == len(partitions):
+            partitions.append(probabilisticPartition.ProbabilisticPartition(s))
+    return partitionset.PartitionSet(partitions)   
 
 def coarsestPartition(P, Q):    
     l = []
@@ -30,11 +83,6 @@ def coarsestPartition(P, Q):
                  if r.name: #Empty intersections are disregarded.
                     if l:
                         names = [element.name for element in l]
-                        print "names:"
-                        for name in names:
-                            print name
-                        print "\n"
-                        print r.name
                         if r.name not in names:
                             l.append(r)
                     else:
@@ -62,83 +110,6 @@ def splitting(p, a, Q):
             p1.addToPartition(q)
             p2.addToPartition(q)                
     return [p1, p2] 
-    
-def initialPartition(g):
-
-    states = g.states
-    partitions = [probabilisticPartition.ProbabilisticPartition(states[0])]
-    for s in states:
-        i = 0
-        for p in partitions:
-            res = g.compareMorphs(s.outedges, p.morph(), 0.95, 'chi-squared')
-            if res[0]:
-                p.addToPartition(s)
-                break
-            i += 1
-        if i == len(partitions):
-            partitions.append(probabilisticPartition.ProbabilisticPartition(s))
-            
-    #for p in partitions:
-    #    print "----------------------------------------------"
-    #    print "|name: " + p.name
-    #    print "|edges: "
-    #    for e in p.outedges:
-    #        print "|     " + str(e)
-    #    print "----------------------------------------------"
-    #    print "\n" 
-    
-    return partitionset.PartitionSet(partitions)                   
-    
-def moore(g):
-    #Initial partition based on outgoing edges:
-    P = initialPartition(g)   
-    #The loop will end when no new partitions are acquired:
-    while True:
-        #print "***************************************************************"
-        P_old = P #Stores the current partition before the loop
-        P_alphabet = []  
-        for a in g.alphabet:
-            print a
-            pa = [] #Stores the splitted partitions for the current letter
-            for p in P.partitions:
-                #Creates partitions based on the follower sets:
-                splits = splitting(p, a, g.states)
-                #Eliminates empty partitions:
-                validSplits = [split for split in splits if split.name != ""]
-                #print "-------"
-                #for v in validSplits:
-                #    print v.name
-                #Append the current letter's partitions:
-                pa.append(validSplits)
-                        
-            Pa = pa.pop(0)
-            for q in pa:
-                cp = coarsestPartition(Pa, q)
-                Pa = noRedundancy(cp, Pa)
-            P_alphabet.append(Pa)         
-        
-        P_b = P_alphabet.pop(0)
-        for pb in P_alphabet:
-            cp = coarsestPartition(P_b, pb)
-            P_b = noRedundancy(cp, P_b)    
-                                   
-        newPartitions = coarsestPartition(P.partitions, P_b)
-        newNames = [p.name for p in newPartitions]
-        oldNames = [p.name for p in P_old.partitions]
-        if newNames == oldNames:
-            break
-        else:
-            P.partitions = newPartitions     
-            
-        #for p in P.partitions:
-        #    print "----------------------------------------------"
-        #    print "|name: " + p.name
-        #    print "|edges: "
-        #    for e in p.outedges:
-        #        print "|     " + str(e)
-        #    print "----------------------------------------------"
-        #    print "\n"           
-    return P 
     
 def noRedundancy(l1, l2):
     for element in l1:
