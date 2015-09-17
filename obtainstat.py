@@ -103,4 +103,6 @@ def generate(shiftType, L, p):
     if s == "even":
         return shifts.evenShift(L, p)
     elif s == "bin":
-        return shifts.binShift(L, p)                                   
+        return shifts.binShift(L, p)
+    elif s == "tri":
+        return shifts.triShift(L, p)                                   

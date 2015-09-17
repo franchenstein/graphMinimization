@@ -14,7 +14,7 @@ class ProbabilisticGraph(graph.Graph):
         for a in [x[0] for x in edgesA]:
             for x in edgesB:
                 if x[0] == a:
-                    morphB.append(x[2]) 
+                    morphB.append(float(x[2])) 
         if morphA == morphB:
             return [True, 1.0]
         else: 

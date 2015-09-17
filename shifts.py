@@ -36,4 +36,31 @@ def binShift(L, p):
             a = 1 if r < p11 else 0
             state = states[1] if r < p11 else states[0]
         out.append(a)
-    return out        
+    return out     
+    
+def triShift(L, p):
+    p0, p1, p2 = p
+    out = []
+    states = [0, 1, 2]
+    #Initialize state:
+    r = random.random()
+    if r < 1.0/3:
+        state = states[0]
+    elif r < 2.0/3:
+        state = states[1]
+    else:
+        state = states[2]
+        
+    for x in range(0,L):
+        r = random.random()
+        if state == states[0]:
+            a = 0 if r < p0 else 1
+            state = states[0] if r < p0 else states[1]
+        elif state == states[1]:
+            a = 0 if r < p1 else 1
+            state = states[2] if r < p1 else states[0]
+        else:
+            a = 0 if r < p2 else 1
+            state = states[0] if r < p2 else states[2]
+        out.append(a)
+    return out    
