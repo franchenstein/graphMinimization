@@ -14,16 +14,16 @@ def readInput(argv):
     shift = ""
     length = ""
     L = ""
-    prob = [0.0, 0.0]
+    prob = [0.0, 0.0, 0.0]
     outFile = ""
     try:
-        opts, args = getopt.getopt(argv, "hs:l:L:p:q:o:", ["shift=","length=", "L=", "prob0=", "prob1=", "ofile="])
+        opts, args = getopt.getopt(argv, "hs:l:L:p:q:r:o:", ["shift=","length=", "L=", "prob0=", "prob1=", "prob2=", "ofile="])
     except getopt.GetoptError:
-        print 'generateData.py -s <shifttype> -l <sequencelength> -L <algorithmL> -p <transitionprobability> -q <transitionprobability> -o <outputfile>'
+        print 'generateData.py -s <shifttype> -l <sequencelength> -L <algorithmL> -p <transitionprobability> -q <transitionprobability> -r <transitionprobability> -o <outputfile>'
         sys.exit(2)
     for opt, arg in opts:
         if opt == "-h":
-            print 'generateData.py -s <shifttype> -l <sequencelength> -L <algorithmL> -p <transitionprobability> -q <transitionprobability> -o <outputfile>'
+            print 'generateData.py -s <shifttype> -l <sequencelength> -L <algorithmL> -p <transitionprobability> -q <transitionprobability> -r <transitionprobability> -o <outputfile>'
             sys.exit()
         elif opt in ("-s", "--shift"):
             shift = arg
@@ -34,7 +34,9 @@ def readInput(argv):
         elif opt in ("-p", "--prob0"):
             prob[0] = float(arg)
         elif opt in ("-q", "--prob1"):
-            prob[1] = float(arg)
+            prob[1] = float(arg)        
+        elif opt in ("-r", "--prob2"):
+            prob[2] = float(arg)
         elif opt in ("-o", "--ofile"):
             outFile = arg
     return [shift, length, L, prob, outFile]

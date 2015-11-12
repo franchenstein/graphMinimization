@@ -43,4 +43,16 @@ class State:
         '''
         childrenNames = [o[1] for o in self.outedges]
         children = [s for s in g.states if s.name in childrenNames]
-        return children    
+        return children   
+
+    def nameLength(self):
+        if self.name == 'e':
+            return 0
+        else:
+            return len(self.name)
+
+    def isSuffix(self, s):
+        if s.name == 'e':
+            return True
+        else:
+            return self.name.endswith(s.name[::-1]) 

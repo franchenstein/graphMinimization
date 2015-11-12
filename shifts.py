@@ -9,7 +9,7 @@ def evenShift(L, p):
     r = random.random()
     state = states[0] if r < 0.5 else states[1]
     while count < L:
-        r = random()
+        r = random.random()
         if state == states[0]:
             a = 0 if r < p00 else 1
             state = states[0] if r < p00 else states[1]

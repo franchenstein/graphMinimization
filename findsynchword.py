@@ -17,10 +17,12 @@ def findSynchWord(g, t):
         sName = root.nextStateFromEdge(a)
         toTest.append(g.states[names.index(sName)])
 
-    for c in toTest:
+    tested = {}
+    while toTest:
+        c = toTest.pop(0)
         inverseC = c.name[::-1]
         nextCandidate = t.states[0].nextCandidate(inverseC, t.states)
-        p = g.compareMorphs(c.outedges, nextCandidate.outedges, 0.95, "chi-squared")
+        p = g.compareMorphs(c.outedges, nextCandidate.outedges, 0.95, "chi-squared")    
         if p[0]:
             insertWithPriority(toTest, c)
         else:            
@@ -36,6 +38,18 @@ def findSynchWord(g, t):
                     
             for e in newToTest:
                 insertWithPriority(toTest, e)
+
+            k = tested.keys()
+            kn = [x for x in k if x > 1 and x < len(c.name)]
+
+            for y in kn:
+                for z in tested[y]:
+                    insertWithPriority(toTest, z)
+
+        if len(c.name) in tested.keys():
+            tested[len(c.name)].append(c)
+        else:
+            tested[len(c.name)] = [c]
     
     r = []
     

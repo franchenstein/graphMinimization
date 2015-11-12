@@ -153,3 +153,19 @@ class Graph:
             reducedGraph = reducedGraph.removeUnreachableStates()
         
         return reducedGraph
+
+    def expand(self, state):
+        desc = []
+        for a in self.alphabet:
+            next = state.nextStateFromEdge(a)
+            nextState = [s for s in self.states if s.name == next]
+            for n in nextState:
+                desc.append(n)
+        return desc
+
+    def root(self):
+        for s in self.states:
+            if s.nameLength() == 0:
+                return s
+            else:
+                return state("", [])

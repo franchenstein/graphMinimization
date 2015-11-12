@@ -5,12 +5,113 @@ import probabilisticState
 import probabilisticGraph as pg
 import ptriestate as pts
 import candidacytrie as ct
-import findsynchword as fsw
+import findsynchwords as fsw
 
-g = pg.ProbabilisticGraph([],[])
-g.parseGraphFile("binaryshift.txt")
+testTree = pg.ProbabilisticGraph([],[])
+testTree.parseGraphFile("binshift_1000000_8.txt")
+synchTrie = ct.CandidacyTrie(testTree.states, testTree.alphabet)
+L = 4
 
-e = pts.pTrieState(g.states[0].name, g.states[0].outedges, True)
-t = ct.CandidacyTrie([e], g.alphabet)
+r = fsw.findSynchWords(L, synchTrie, testTree)
 
-r = fsw.findSynchWord(g, t)
+print "Results for binary shift, 10000000 sequence, L = 8, L1 = 4. \n"
+for x in r:
+	print x.name
+
+print "\n"
+
+testTree.parseGraphFile("evenshift_1000000_8.txt")
+synchTrie = ct.CandidacyTrie(testTree.states, testTree.alphabet)
+L = 4
+
+r = fsw.findSynchWords(L, synchTrie, testTree)
+
+print "Results for even shift, 10000000 sequence, L = 8, L1 = 4. \n"
+for x in r:
+	print x.name
+
+print "\n"
+
+testTree.parseGraphFile("trishift_1000000_8.txt")
+synchTrie = ct.CandidacyTrie(testTree.states, testTree.alphabet)
+L = 4
+
+r = fsw.findSynchWords(L, synchTrie, testTree)
+
+print "Results for tri shift, 10000000 sequence, L = 8, L1 = 4. \n"
+for x in r:
+	print x.name
+
+print "\n"
+
+testTree.parseGraphFile("binshift_1000000_8.txt")
+synchTrie = ct.CandidacyTrie(testTree.states, testTree.alphabet)
+L = 5
+
+r = fsw.findSynchWords(L, synchTrie, testTree)
+
+print "Results for binary shift, 10000000 sequence, L = 8, L1 = 5. \n"
+for x in r:
+	print x.name
+
+print "\n"
+
+testTree.parseGraphFile("evenshift_1000000_8.txt")
+synchTrie = ct.CandidacyTrie(testTree.states, testTree.alphabet)
+L = 5
+
+r = fsw.findSynchWords(L, synchTrie, testTree)
+
+print "Results for even shift, 10000000 sequence, L = 8, L1 = 5. \n"
+for x in r:
+	print x.name
+
+print "\n"
+
+testTree.parseGraphFile("trishift_1000000_8.txt")
+synchTrie = ct.CandidacyTrie(testTree.states, testTree.alphabet)
+L = 5
+
+r = fsw.findSynchWords(L, synchTrie, testTree)
+
+print "Results for tri shift, 10000000 sequence, L = 8, L1 = 5. \n"
+for x in r:
+	print x.name
+
+print "\n"
+
+testTree.parseGraphFile("binshift_1000000_8.txt")
+synchTrie = ct.CandidacyTrie(testTree.states, testTree.alphabet)
+L = 6
+
+r = fsw.findSynchWords(L, synchTrie, testTree)
+
+print "Results for binary shift, 10000000 sequence, L = 8, L1 = 6. \n"
+for x in r:
+	print x.name
+
+print "\n"
+
+testTree.parseGraphFile("evenshift_1000000_8.txt")
+synchTrie = ct.CandidacyTrie(testTree.states, testTree.alphabet)
+L = 6
+
+r = fsw.findSynchWords(L, synchTrie, testTree)
+
+print "Results for even shift, 10000000 sequence, L = 8, L1 = 6. \n"
+for x in r:
+	print x.name
+
+print "\n"
+
+testTree.parseGraphFile("trishift_1000000_8.txt")
+synchTrie = ct.CandidacyTrie(testTree.states, testTree.alphabet)
+L = 6
+
+r = fsw.findSynchWords(L, synchTrie, testTree)
+
+print "Results for tri shift, 10000000 sequence, L = 8, L1 = 6. \n"
+for x in r:
+	print x.name
+
+print "\n"
