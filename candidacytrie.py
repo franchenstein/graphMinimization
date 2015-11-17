@@ -15,37 +15,36 @@ class CandidacyTrie(pg.ProbabilisticGraph):
             pStates.append(p)
         pg.ProbabilisticGraph.__init__(self, pStates, alphabet)
         
-    def expandState(self, s, g):
-        if s.candFlag:
-            s.candFlag = False
-            newNames = []
-            for a in self.alphabet:
-                if s.name == "e":
-                    newName = a
-                else:
-                    newName = a + s.name
-                names = [x.name for x in g.states]
-                newEdges = g.states[names.index(newName[::-1])].outedges
-                newState = pts.pTrieState(newName, newEdges, True)
-                self.states.append(newState)
-                newNames.append(newName[::-1])
-                #still need to consider case when last nodes are reached
-            return newNames
-        else:
-            a = []
-            for i in self.alphabet:
-                a.append(s.nextStateFromEdge(a).name[::-1])
-            return a
+    # def expandState(self, s, g):
+    #     if s.candFlag:
+    #         s.candFlag = False
+    #         newNames = []
+    #         for a in self.alphabet:
+    #             if s.name == "e":
+    #                 newName = a
+    #             else:
+    #                 newName = a + s.name
+    #             names = [x.name for x in g.states]
+    #             newEdges = g.states[names.index(newName[::-1])].outedges
+    #             newState = pts.pTrieState(newName, newEdges, True)
+    #             self.states.append(newState)
+    #             newNames.append(newName[::-1])
+    #             #still need to consider case when last nodes are reached
+    #         return newNames
+    #     else:
+    #         a = []
+    #         for i in self.alphabet:
+    #             a.append(s.nextStateFromEdge(a).name[::-1])
+    #         return a
 
     def validStates(self):
         s = [x for x in self.states if (x.candidacy == True) and (x.tested == False)]
         s.sort(key=lambda x: len(x.name))
         return s
 
-    def root(self):
-        r = pg.ProbabilisticGraph.root(self)
-        r.candidacy = True
-        return r
+    # def root(self):
+    #     r = pg.ProbabilisticGraph.root(self)
+    #     return r
 
     def expand(self, s, l):
         for state in self.states:
@@ -67,3 +66,16 @@ class CandidacyTrie(pg.ProbabilisticGraph):
         for state in self.states:
             if state.name == s.name:
                 state.tested = True
+
+    def isSuffix(self, full, candidate):
+        if candidate == 'e':
+            return True
+        else:
+            l = len(full) - len(candidate)
+            partial = full[::-1]
+            a = range(0,len(candidate))
+            aux = self.root()
+            for i in a:
+                newStateName = aux.nextStateFromEdge(partial[i])
+                aux = self.stateNamed(newStateName)
+            return (aux.name is candidate and aux.candidacy)

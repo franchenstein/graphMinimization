@@ -10,46 +10,57 @@ def reverse(descendants, tree):
             reversed.append(x)
     return reversed
 
+def expandtrees(s, trie, tree, testlist, L):
+    descendants = trie.expand(s, L)
+    revdescendants = reverse(descendants, tree)
+    for r in revdescendants:
+        exps = tree.expand(r)
+        for e in exps:
+            if e not in testlist:
+                testlist.append(e)
+
 
 def findSynchWords(L, synchTrie, testTree):
     # Initialization:
     ST = [synchTrie.root()]
+    ST[0].candidacy = True
     TT = [testTree.root()]
     expand = testTree.expand(testTree.root())
     for e in expand:
         TT.append(e)
     testedPairs = []
+    suffixFound = []
     # Main Loop:
     while True:
         if ST:
             currentCandidate = ST.pop(0)
         else:
             break
-        suffixFound = []
         l = currentCandidate.nameLength()
         if l < L:
             toCompare = [s for s in TT if ((s.nameLength() > l) and
-                                           (s not in suffixFound) and
+                                           (s.name not in suffixFound) and
                                            ((s.name, currentCandidate.name) not in testedPairs))]
             toCompareCounter = 0
             for h in toCompare:
-                if h.isSuffix(currentCandidate):
-                    suffixFound.append(h)
+                if synchTrie.isSuffix(h.name, currentCandidate.name):
                     p = testTree.compareMorphs(currentCandidate.outedges, h.outedges, 0.99, "chi-squared")
-                    testedPairs.append((h, currentCandidate))
+                    (a, b) = (h.name, currentCandidate.name)
+                    if (a,b) not in testedPairs:
+                        testedPairs.append((a, b))
                     if not p[0]:
-                        descendants = synchTrie.expand(currentCandidate, L)
-                        revDescendants = reverse(descendants, testTree)
-                        for r in revDescendants:
-                            exps = testTree.expand(r)
-                            for e in exps:
-                                if e not in TT:
-                                    TT.append(e)
+                        expandtrees(currentCandidate, synchTrie, testTree, TT, L)
                         synchTrie.markUntested()
                         break
+                    else:
+                        suffixFound.append(h.name)
                 toCompareCounter += 1
                 if toCompareCounter == len(toCompare):
-                    synchTrie.markTested(currentCandidate)
+                    testedNames = list(set([x[1] for x in testedPairs]))
+                    if currentCandidate.name in testedNames:
+                        synchTrie.markTested(currentCandidate)
+                    else: 
+                        currentCandidate.candidacy = False
         ST = synchTrie.validStates()
-    synchWords = [s for s in synchTrie.states if s.candidacy == True]
-    return synchWords
+    synchWords = [s for s in synchTrie.states if s.candidacy and s.tested]
+    return synchWords  

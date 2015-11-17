@@ -52,7 +52,7 @@ class State:
             return len(self.name)
 
     def isSuffix(self, s):
-        if s.name == 'e':
+        if s == 'e':
             return True
         else:
-            return self.name.endswith(s.name[::-1]) 
+            return self.name.endswith(s[::-1])
