@@ -169,3 +169,8 @@ class Graph:
                 return s
             else:
                 return state("", [])
+
+    def stateNamed(self, stateName):
+        stateNames = [s.name for s in self.states]
+        i = stateNames.index(stateName)
+        return self.states[i]
