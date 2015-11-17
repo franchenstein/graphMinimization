@@ -79,3 +79,13 @@ class CandidacyTrie(pg.ProbabilisticGraph):
                 newStateName = aux.nextStateFromEdge(partial[i])
                 aux = self.stateNamed(newStateName)
             return (aux.name is candidate and aux.candidacy)
+
+    def shortestValidSuffix(self, name):
+        n = name [::-1]
+        aux = self.root()
+        i = 0
+        while (aux.candidacy is False) and (i < len(n)):
+            newStateName = aux.nextStateFromEdge(n[i])
+            aux = self.stateNamed(newStateName)
+            i += 1
+        return aux.name

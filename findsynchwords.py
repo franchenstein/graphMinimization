@@ -14,10 +14,12 @@ def expandtrees(s, trie, tree, testlist, L):
     descendants = trie.expand(s, L)
     revdescendants = reverse(descendants, tree)
     for r in revdescendants:
-        exps = tree.expand(r)
-        for e in exps:
-            if e not in testlist:
-                testlist.append(e)
+        n = trie.shortestValidSuffix(r.name)
+        if n == r.name:
+            exps = tree.expand(r)
+            for e in exps:
+                if e not in testlist:
+                    testlist.append(e)
 
 
 def findSynchWords(L, synchTrie, testTree):
