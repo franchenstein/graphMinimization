@@ -172,5 +172,8 @@ class Graph:
 
     def stateNamed(self, stateName):
         stateNames = [s.name for s in self.states]
-        i = stateNames.index(stateName)
-        return self.states[i]
+        if stateName in stateNames:
+            i = stateNames.index(stateName)
+            return self.states[i]
+        else:
+            return None

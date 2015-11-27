@@ -89,10 +89,10 @@ def saveAsStates(P_cond, alphabet, filePath):
                 lines.append(state + "\n")
                 for a in alphabet:
                     s = str(probDict[ a + "|" + state])
-                    if float(s) > 0.0:
-                        t = state if i < (L - 1) else state[1:]
-                        n = t + a
-                        lines.append( a + " " + n + " " + s + "\n")
+                    #if float(s) > 0.0:
+                    t = state if i < (L - 1) else state[1:]
+                    n = t + a
+                    lines.append( a + " " + n + " " + s + "\n")
                 lines.append("\n")    
         i += 1
     f.writelines(lines)
@@ -105,4 +105,6 @@ def generate(shiftType, L, p):
     elif s == "bin":
         return shifts.binShift(L, p)
     elif s == "tri":
-        return shifts.triShift(L, p)                                   
+        return shifts.triShift(L, p) 
+    elif s == "ternary":
+        return shifts.ternaryShift(L, p)                                  
