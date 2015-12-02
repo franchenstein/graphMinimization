@@ -1,0 +1,6 @@
+*********************************************
+Input file: henon_L15.txt 
+Window size: 5 
+*********************************************
+Synchronization words found:
+1111
