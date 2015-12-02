@@ -9,45 +9,57 @@ import candidacytrie as ct
 import findsynchwords as fsw
 
 def main(argv):
-	ifile, w, ofile = readInput(argv)
+	ifile, s, e, a, t, ofile = readInput(argv)
 	testTree = pg.ProbabilisticGraph([],[])
 	testTree.parseGraphFile(ifile)
 	synchTrie = ct.CandidacyTrie(testTree.states, testTree.alphabet)
-	r = fsw.findSynchWords(w, synchTrie, testTree)
 	f = open(ofile, 'w')
 	f.write("*********************************************\n")
 	f.write("Input file: %s \n" %ifile)
-	f.write("Window size: %d \n" %w) 
+	f.write("Statistical test: %s \n", %t)
+	f.write("Confidence: %d \% \n", %(100*alpha))
 	f.write("*********************************************\n")
-	if r:
-		f.write("Synchronization words found:\n")
-		for s in r:
-			f.write("%s\n" %s.name)
-	else:
-		f.write("No synchronization words found.\n")
+	for w in range(s, e + 1):
+	    r = fsw.findSynchWords(w, synchTrie, testTree)
+	    if r:
+		    f.write("Synchronization words found for window size %d:\n", %w)
+		    for s in r:
+			    f.write("%s\n" %s.name)
+	    else:
+		    f.write("No synchronization words found for windows size: %d.\n", %w)
+	    f.write("\n")
 	f.close()
 	return
 
 def readInput(argv):
 	ifile = ""
-	w = ""
+	s = ""
+	e = ""
+	a = ""
+	t = ""
 	ofile = ""
 	try:
-		opts, args = getopt.getopt(argv, "hi:w:o:", ["ifile=", "windowsize=", "ofile="])
+		opts, args = getopt.getopt(argv, "hi:s:e:a:t:o:", ["ifile=", "startingwindowsize=", "endingwindowsize", "alpha", "testtype", "ofile="])
 	except getopt.GetoptError:
-		print 'findSynchWordFromFile.py -i <inputfile> -w <windowsize> -o <outputfile>'
+		print 'findSynchWordFromFile.py -i <inputfile> -s <startingwindowsize> -e <endingwindowsize> -a <alpha> -t <testtype> -o <outputfile>'
 		sys.exit(2)
 	for opt, arg in opts:
 		if opt == "-h":
-			print 'findSynchWordFromFile.py -i <inputfile> -w <windowsize> -o <outputfile>'
+			print 'findSynchWordFromFile.py -i <inputfile> -s <startingwindowsize> -e <endingwindowsize> -a <alpha> -t <testtype> -o <outputfile>'
 			sys.exit()
 		elif opt in ("-i", "--ifile"):
 			ifile = arg
-		elif opt in ("-w", "--windowsize"):
-			w = int(arg)
+		elif opt in ("-s", "--startomgwindowsize"):
+			s = int(arg)
+		elif opt in ("-e", "--endingwindowsize"):
+			e = int(arg)
+		elif opt in ("-a", "--alpha"):
+			a = int(arg)
+		elif opt in ("-t", "--testtype"):
+			t = arg
 		elif opt in ("-o", "--ofile"):
 			ofile = arg
-	return [ifile, w, ofile]
+	return [ifile, s, e, a, t, ofile]
 
 if __name__ == "__main__":
 	main(sys.argv[1:])

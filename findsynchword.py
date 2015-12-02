@@ -9,7 +9,7 @@ def insertWithPriority(l, el):
             i += 1
     l.insert(i + 1,el)
 
-def findSynchWord(g, t):
+def findSynchWord(g, t, alpha, testType):
     root = g.states[0]
     toTest = []
     names = [x.name for x in g.states]
@@ -22,7 +22,7 @@ def findSynchWord(g, t):
         c = toTest.pop(0)
         inverseC = c.name[::-1]
         nextCandidate = t.states[0].nextCandidate(inverseC, t.states)
-        p = g.compareMorphs(c.outedges, nextCandidate.outedges, 0.95, "chi-squared")    
+        p = g.compareMorphs(c.outedges, nextCandidate.outedges, alpha, testType)    
         if p[0]:
             insertWithPriority(toTest, c)
         else:            
