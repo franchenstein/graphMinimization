@@ -9,24 +9,24 @@ import candidacytrie as ct
 import findsynchwords as fsw
 
 def main(argv):
-	ifile, s, e, a, t, ofile = readInput(argv)
+	ifile, s, e, a, test, ofile = readInput(argv)
 	testTree = pg.ProbabilisticGraph([],[])
 	testTree.parseGraphFile(ifile)
 	synchTrie = ct.CandidacyTrie(testTree.states, testTree.alphabet)
 	f = open(ofile, 'w')
 	f.write("*********************************************\n")
 	f.write("Input file: %s \n" %ifile)
-	f.write("Statistical test: %s \n", %t)
-	f.write("Confidence: %d \% \n", %(100*alpha))
+	f.write("Statistical test: %s \n" %test)
+	f.write("Confidence: %f \n" %a)
 	f.write("*********************************************\n")
 	for w in range(s, e + 1):
 	    r = fsw.findSynchWords(w, synchTrie, testTree)
 	    if r:
-		    f.write("Synchronization words found for window size %d:\n", %w)
+		    f.write("Synchronization words found for window size %d:\n" %w)
 		    for s in r:
 			    f.write("%s\n" %s.name)
 	    else:
-		    f.write("No synchronization words found for windows size: %d.\n", %w)
+		    f.write("No synchronization words found for window size: %d.\n" %w)
 	    f.write("\n")
 	f.close()
 	return
@@ -36,7 +36,7 @@ def readInput(argv):
 	s = ""
 	e = ""
 	a = ""
-	t = ""
+	test = ""
 	ofile = ""
 	try:
 		opts, args = getopt.getopt(argv, "hi:s:e:a:t:o:", ["ifile=", "startingwindowsize=", "endingwindowsize", "alpha", "testtype", "ofile="])
@@ -54,12 +54,12 @@ def readInput(argv):
 		elif opt in ("-e", "--endingwindowsize"):
 			e = int(arg)
 		elif opt in ("-a", "--alpha"):
-			a = int(arg)
+			a = float(arg)
 		elif opt in ("-t", "--testtype"):
-			t = arg
+			test = arg
 		elif opt in ("-o", "--ofile"):
 			ofile = arg
-	return [ifile, s, e, a, t, ofile]
+	return [ifile, s, e, a, test, ofile]
 
 if __name__ == "__main__":
 	main(sys.argv[1:])
