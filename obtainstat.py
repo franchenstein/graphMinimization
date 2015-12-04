@@ -50,16 +50,17 @@ def calcProbsInParallel(data, L, numSubs, output):
     counts = [x[0] for x in results]
     probs = []
     for p in counts:
-        q = (mergeDicts(p)
-        for key in q:
-            q[key] = probs[key].float(len(data))
+        q = mergeDicts(p)
+        for key in q.keys():
+            q[key] = q[key]/float(len(data))
         probs.append(q)
-        
+        print q
     alphs = [x[1] for x in results]
     a = alphs[0]
     for b in alphs[1:]:
         a += b
     alphabet = list(set(a))
+    print alphabet
     
     return [probs, alphabet]
     
@@ -67,7 +68,7 @@ def mergeDicts(dicts):
     d0 = dicts[0]
     for d in dicts[1:]:
         for key in d.keys():
-            if k in d0.keys():
+            if key in d0.keys():
                 d0[key] += d[key]
             else:
                 d0[key] = d[key]
