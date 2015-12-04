@@ -66,12 +66,14 @@ def calcProbsInParallel(data, L, numSubs, output):
     
 def mergeDicts(dicts):
     d0 = dicts[0]
+    k = d0.keys()[0]
     for d in dicts[1:]:
         for key in d.keys():
             if key in d0.keys():
                 d0[key] += d[key]
             else:
-                d0[key] = d[key]
+                if len(k) == len(key):
+                    d0[key] = d[key]
     return d0   
     
     
