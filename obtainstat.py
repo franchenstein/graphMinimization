@@ -47,10 +47,13 @@ def calcProbsInParallel(data, L, numSubs, output):
         p.join()
         
     results = [output.get() for p in processes]
-    probs = [x[0] for x in results]
-    probs = mergeDicts(probs)
-    for key in probs:
-        probs[key] = probs[key]/float(len(data))
+    counts = [x[0] for x in results]
+    probs = []
+    for p in counts:
+        q = (mergeDicts(p)
+        for key in q:
+            q[key] = probs[key].float(len(data))
+        probs.append(q)
         
     alphs = [x[1] for x in results]
     a = alphs[0]
