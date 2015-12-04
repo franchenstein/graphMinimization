@@ -2,8 +2,9 @@ from random import random
 from numpy import log2
 import matplotlib.pyplot as plt
 import shifts
+import multiprocessing as mp
 
-def calcProbs(data, L):
+def calcProbs(data, L, output):
     l = 1
     probs = []
     alphabet = []
@@ -21,11 +22,54 @@ def calcProbs(data, L):
                 d[currentValue] += 1
             else:
                 d[currentValue] = 1
-        for key in d:
-            d[key] = d[key]/float(len(data))
+        #for key in d:
+        #    d[key] = d[key]/float(len(data))
         probs.append(d)
         l += 1
+    output.put([probs, alphabet])
     return [probs, alphabet]
+    
+def calcProbsInParallel(data, L, numSubs, output):
+    subLength = len(data)/numSubs
+    lastSubLength = len(data)%numSubs
+    subs = [data[i:i+subLength] for i in range(numSubs)]
+    if lastSubLength > 0:
+        lastSub = data[-lastSubLength:]
+        subs.append(lastSub)
+        numSubs += 1
+    processes = [mp.Process(target = calcProbs, args = (subs[i], L, output))
+                    for i in range(numSubs)]
+
+    for p in processes:
+        p.start()
+        
+    for p in processes:
+        p.join()
+        
+    results = [output.get() for p in processes]
+    probs = [x[0] for x in results]
+    probs = mergeDicts(probs)
+    for key in probs:
+        probs[key] = probs[key]/float(len(data))
+        
+    alphs = [x[1] for x in results]
+    a = alphs[0]
+    for b in alphs[1:]:
+        a += b
+    alphabet = list(set(a))
+    
+    return [probs, alphabet]
+    
+def mergeDicts(dicts):
+    d0 = dicts[0]
+    for d in dicts[1:]:
+        for key in d.keys():
+            if k in d0.keys():
+                d0[key] += d[key]
+            else:
+                d0[key] = d[key]
+    return d0   
+    
     
 def calcCondProbs(P, L, alphabet):
     #Initialize the conditional probabilities with the first node: probabilities
