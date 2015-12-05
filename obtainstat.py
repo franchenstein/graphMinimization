@@ -48,34 +48,49 @@ def calcProbsInParallel(data, L, numSubs, output):
         
     results = [output.get() for p in processes]
     counts = [x[0] for x in results]
+    countsByLength = []
+    for c in counts:
+	countsByLength.append(createDictsByLength(c, L))
     probs = []
-    for p in counts:
-        q = mergeDicts(p)
-        for key in q.keys():
-            q[key] = q[key]/float(len(data))
-        probs.append(q)
-        print q
+    for i in range(L+1):
+	p = [x[i] for x in countsByLength]
+        p = mergeDicts(p)
+	for key in p.keys():
+	    p[key] = p[key]/float(len(data))
+	probs.append(p)
+     
     alphs = [x[1] for x in results]
     a = alphs[0]
     for b in alphs[1:]:
         a += b
     alphabet = list(set(a))
-    print alphabet
     
     return [probs, alphabet]
     
 def mergeDicts(dicts):
     d0 = dicts[0]
-    k = d0.keys()[0]
+    k = len(d0.keys()[0])
     for d in dicts[1:]:
-        for key in d.keys():
+	for key in d.keys():
             if key in d0.keys():
                 d0[key] += d[key]
             else:
-                if len(k) == len(key):
-                    d0[key] = d[key]
+	        d0[key] = d[key]
     return d0   
     
+def createDictsByLength(dicts, L):
+    p = []
+    for i in range(1,L+2):
+	d = {}
+	for e in dicts:
+	    for k in e.keys():
+		if len(k) == i:
+		    if k in d.keys():
+			d[k] += e[k]
+		    else:
+			d[k] = e[k]
+	p.append(d)
+    return p
     
 def calcCondProbs(P, L, alphabet):
     #Initialize the conditional probabilities with the first node: probabilities

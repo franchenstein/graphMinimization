@@ -2,8 +2,10 @@
 import sys, getopt
 import obtainstat
 import multiprocessing as mp
+import time
 
 def main(argv):
+    start_time = time.time()
     output = mp.Queue()
     path, L, s, outfile = readInput(argv)
     with open(path, 'r') as f:
@@ -14,6 +16,7 @@ def main(argv):
     P_cond = obtainstat.calcCondProbs(P, L, alph)
     H = obtainstat.calcCondEntropy(P, P_cond, L)
     obtainstat.saveAsStates(P_cond, alph, outfile)
+    print  ("---- %s seconds ----" %(time.time() - start_time))
     return
 
 def readInput(argv):
