@@ -4,24 +4,39 @@ import matplotlib.pyplot as plt
 import shifts
 import multiprocessing as mp
 
+def calcProbsForOneLength(data, l, alphabet):
+    d = dict()
+    r = range(0, len(data) - (l - 1))
+    for i in r:
+        currentValue = ''.join(str(e) for e in data[i:i+l])
+        if l == 1:
+            if currentValue not in alphabet:
+                alphabet.append(currentValue)
+            if currentValue in d.keys():
+                d[currentValue] += 1
+            else:
+                d[currentValue] = 1
+    return [d, alphabet]
+
 def calcProbs(data, L, output):
     l = 1
     probs = []
     alphabet = []
     while l <= L + 1:
-        d = dict()
-        r = range(0, len(data) - (l - 1))
-        for i in r:
-            currentValue = ''.join(str(e) for e in data[i:i+l])
-            #Deduce alphabet:
-            if l == 1:
-                if not currentValue in alphabet:
-                    alphabet.append(currentValue)
-            #Count number of occurences of subsequence:
-            if currentValue in d:
-                d[currentValue] += 1
-            else:
-                d[currentValue] = 1
+        d, alphabet = calcProbsForOneLength(data, l, alphabet)
+        #d = dict()
+        #r = range(0, len(data) - (l - 1))
+        #for i in r:
+        #    currentValue = ''.join(str(e) for e in data[i:i+l])
+        #    #Deduce alphabet:
+        #    if l == 1:
+        #        if not currentValue in alphabet:
+        #            alphabet.append(currentValue)
+        #    #Count number of occurences of subsequence:
+        #    if currentValue in d:
+        #        d[currentValue] += 1
+        #    else:
+        #        d[currentValue] = 1
         #for key in d:
         #    d[key] = d[key]/float(len(data))
         probs.append(d)
@@ -39,10 +54,8 @@ def calcProbsInParallel(data, L, numSubs, output):
         numSubs += 1
     processes = [mp.Process(target = calcProbs, args = (subs[i], L, output))
                     for i in range(numSubs)]
-
     for p in processes:
-        p.start()
-        
+        p.start()        
     for p in processes:
         p.join()
         
@@ -53,11 +66,11 @@ def calcProbsInParallel(data, L, numSubs, output):
 	countsByLength.append(createDictsByLength(c, L))
     probs = []
     for i in range(L+1):
-	p = [x[i] for x in countsByLength]
+        p = [x[i] for x in countsByLength]
         p = mergeDicts(p)
-	for key in p.keys():
-	    p[key] = p[key]/float(len(data))
-	probs.append(p)
+        for key in p.keys():
+            p[key] = p[key]/float(len(data))
+	    probs.append(p)
      
     alphs = [x[1] for x in results]
     a = alphs[0]
@@ -71,11 +84,11 @@ def mergeDicts(dicts):
     d0 = dicts[0]
     k = len(d0.keys()[0])
     for d in dicts[1:]:
-	for key in d.keys():
-            if key in d0.keys():
-                d0[key] += d[key]
-            else:
-	        d0[key] = d[key]
+	    for key in d.keys():
+                if key in d0.keys():
+                    d0[key] += d[key]
+                else:
+	                d0[key] = d[key]
     return d0   
     
 def createDictsByLength(dicts, L):
