@@ -1,11 +1,13 @@
 #!/usr/bin/env
 import sys, getopt
 import obtainstat
+import multiprocessing as mp
 
 def main(argv):
     shift, length, L, prob, outFile = readInput(argv)
+    output = mp.Queue()
     data = obtainstat.generate(shift, length, prob)
-    P, alph = obtainstat.calcProbs(data, L)
+    P, alph = obtainstat.calcProbs(data, L, output)
     P_cond = obtainstat.calcCondProbs(P, L, alph)
     H = obtainstat.calcCondEntropy(P, P_cond, L)
     obtainstat.saveAsStates(P_cond, alph, outFile)
