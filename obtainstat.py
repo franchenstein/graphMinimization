@@ -23,22 +23,22 @@ def calcProbs(data, L, output):
     probs = []
     alphabet = []
     while l <= L + 1:
-        d, alphabet = calcProbsForOneLength(data, l, alphabet)
-        #d = dict()
-        #r = range(0, len(data) - (l - 1))
-        #for i in r:
-        #    currentValue = ''.join(str(e) for e in data[i:i+l])
-        #    #Deduce alphabet:
-        #    if l == 1:
-        #        if not currentValue in alphabet:
-        #            alphabet.append(currentValue)
-        #    #Count number of occurences of subsequence:
-        #    if currentValue in d:
-        #        d[currentValue] += 1
-        #    else:
-        #        d[currentValue] = 1
-        #for key in d:
-        #    d[key] = d[key]/float(len(data))
+        #d, alphabet = calcProbsForOneLength(data, l, alphabet)
+        d = dict()
+        r = range(0, len(data) - (l - 1))
+        for i in r:
+            currentValue = ''.join(str(e) for e in data[i:i+l])
+            #Deduce alphabet:
+            if l == 1:
+                if not currentValue in alphabet:
+                    alphabet.append(currentValue)
+            #Count number of occurences of subsequence:
+            if currentValue in d:
+                d[currentValue] += 1
+            else:
+                d[currentValue] = 1
+        for key in d:
+            d[key] = d[key]/float(len(data))
         probs.append(d)
         l += 1
     output.put([probs, alphabet])
@@ -144,6 +144,8 @@ def calcCondEntropy(P, P_cond, L):
         h.append(acc)
         l += 1
     plt.plot(h)
+    x1,x2,y1,y2 = plt.axis()
+    plt.axis((x1,x2,0,1))
     plt.show()
     return h     
     

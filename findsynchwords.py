@@ -22,7 +22,7 @@ def expandtrees(s, trie, tree, testlist, L):
                     testlist.append(e)
 
 
-def findSynchWords(L, synchTrie, testTree):
+def findSynchWords(L, synchTrie, testTree, alpha, testType):
     # Initialization:
     ST = [synchTrie.root()]
     ST[0].candidacy = True
@@ -46,7 +46,7 @@ def findSynchWords(L, synchTrie, testTree):
             toCompareCounter = 0
             for h in toCompare:
                 if synchTrie.isSuffix(h.name, currentCandidate.name):
-                    p = testTree.compareMorphs(currentCandidate.outedges, h.outedges, 0.99, "chi-squared")
+                    p = testTree.compareMorphs(currentCandidate.outedges, h.outedges, alpha, testType)
                     (a, b) = (h.name, currentCandidate.name)
                     if (a,b) not in testedPairs:
                         testedPairs.append((a, b))

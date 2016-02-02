@@ -9,7 +9,7 @@ def insertWithPriority(l, el):
             i += 1
     l.insert(i + 1,el)
 
-def findSynchWord(g, t, alpha, testType):
+def findSynchWord(w, g, t, alpha, testType):
     root = g.states[0]
     toTest = []
     names = [x.name for x in g.states]

@@ -1,6 +1,7 @@
 #!/usr/bin/env
 import sys, getopt
 import obtainstat
+import multiprocessing as mp
 
 def main(argv):
 	path, L, outfile = readInput(argv)
@@ -8,7 +9,8 @@ def main(argv):
 		l = f.readline()
 	l = l.split()
 	data = [x[0] for x in l]
-	P, alph = obtainstat.calcProbs(data, L)
+	output = mp.Queue()
+	P, alph = obtainstat.calcProbs(data, L, output)
 	P_cond = obtainstat.calcCondProbs(P, L, alph)
 	H = obtainstat.calcCondEntropy(P, P_cond, L)
 	obtainstat.saveAsStates(P_cond, alph, outfile)

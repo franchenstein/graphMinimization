@@ -20,7 +20,7 @@ def main(argv):
 	f.write("Confidence: %f \n" %a)
 	f.write("*********************************************\n")
 	for w in range(s, e + 1):
-	    r = fsw.findSynchWords(w, synchTrie, testTree)
+	    r = fsw.findSynchWords(w, synchTrie, testTree, a, test)
 	    if r:
 		    f.write("Synchronization words found for window size %d:\n" %w)
 		    for s in r:
