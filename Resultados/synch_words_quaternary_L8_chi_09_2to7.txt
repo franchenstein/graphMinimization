@@ -1,0 +1,10 @@
+*********************************************
+Input file: graph_quaternary_L8.txt 
+Statistical test: chi-squared 
+Confidence: 0.900000 
+*********************************************
+Synchronization words found for window size 2:
+1
+3
+2
+

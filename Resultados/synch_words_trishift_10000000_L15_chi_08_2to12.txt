@@ -1,0 +1,38 @@
+*********************************************
+Input file: ./Resultados/graph_trishift_10000000_L15.txt 
+Statistical test: chi-squared 
+Confidence: 0.800000 
+*********************************************
+Synchronization words found for window size 2:
+e
+
+Synchronization words found for window size 3:
+e
+
+Synchronization words found for window size 4:
+e
+
+Synchronization words found for window size 5:
+e
+
+Synchronization words found for window size 6:
+e
+
+Synchronization words found for window size 7:
+e
+
+Synchronization words found for window size 8:
+e
+
+Synchronization words found for window size 9:
+e
+
+Synchronization words found for window size 10:
+e
+
+Synchronization words found for window size 11:
+e
+
+Synchronization words found for window size 12:
+e
+
