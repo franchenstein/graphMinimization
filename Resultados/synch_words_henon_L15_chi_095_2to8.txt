@@ -1,0 +1,9 @@
+*********************************************
+Input file: graph_henon_L15.txt 
+Statistical test: chi-squared 
+Confidence: 0.950000 
+*********************************************
+No synchronization words found for window size: 2.
+
+No synchronization words found for window size: 3.
+

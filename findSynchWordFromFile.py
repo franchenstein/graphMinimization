@@ -10,8 +10,10 @@ import findsynchwords as fsw
 
 def main(argv):
 	ifile, s, e, a, test, ofile = readInput(argv)
+	print "Generating graph from graph file."
 	testTree = pg.ProbabilisticGraph([],[])
 	testTree.parseGraphFile(ifile)
+	print "Generating synchronization words tree from graph."
 	synchTrie = ct.CandidacyTrie(testTree.states, testTree.alphabet)
 	f = open(ofile, 'w')
 	f.write("*********************************************\n")
@@ -19,6 +21,7 @@ def main(argv):
 	f.write("Statistical test: %s \n" %test)
 	f.write("Confidence: %f \n" %a)
 	f.write("*********************************************\n")
+	print "Starting search for synch words."
 	for w in range(s, e + 1):
 	    r = fsw.findSynchWords(w, synchTrie, testTree, a, test)
 	    if r:
@@ -28,7 +31,9 @@ def main(argv):
 	    else:
 		    f.write("No synchronization words found for window size: %d.\n" %w)
 	    f.write("\n")
+	    print "Found synch words for window size: %d" %w
 	f.close()
+	print "*************Found all synch words**************************"
 	return
 
 def readInput(argv):
