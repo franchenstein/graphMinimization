@@ -1,0 +1,46 @@
+*********************************************
+Input file: graph_10dB_0.005_q=1_L12.txt 
+Statistical test: chi-squared 
+Confidence: 0.962500 
+*********************************************
+No synchronization words found for window size: 2.
+
+No synchronization words found for window size: 3.
+
+Synchronization words found for window size 4:
+111
+
+Synchronization words found for window size 5:
+111
+1101
+
+Synchronization words found for window size 6:
+1111
+0111
+
+Synchronization words found for window size 7:
+1111
+010001
+
+Synchronization words found for window size 8:
+11111
+01111
+010001
+1100011
+0011000
+1000110
+1000101
+0000000
+1000001
+
+Synchronization words found for window size 9:
+11111
+01111
+010001
+1100011
+1000110
+1000101
+0000000
+1000001
+00011000
+

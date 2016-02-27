@@ -1,0 +1,8 @@
+*********************************************
+Input file: graph_10dB_0.005_q=1_L12.txt 
+Statistical test: chi-squared 
+Confidence: 0.800000 
+*********************************************
+Synchronization words found for window size 2:
+1
+
