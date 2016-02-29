@@ -10,7 +10,7 @@ so = f.read()
 f.close()
 
 so = list(so)
-for i in range(0,len(so))
+for i in range(0,len(so)):
     so[i] = int(so[i])
 
 Po, alpho = os.calcProbs(so, 12, q)
@@ -18,7 +18,7 @@ Pcondo = os.calcCondProbs(Po, 12, alpho)
 Ho = os.calcCondEntropy(Po, Pcondo, 12)
 
 f1 = "./Resultados/sequence_evenshift_generated_L"
-f2 - "_10000000.txt"
+f2 = "_10000000.txt"
 f2nm = "_10000000_NoMoore.txt"
 
 s = []
@@ -68,7 +68,7 @@ for x in snm:
     pcond = os.calcCondProbs(p, 12, alph)
     Pcond_nm.append(pcond)
     h = os.calcCondEntropy(p, pcond, 12)
-    H_nm.append(h)
+    Hnm.append(h)
     
 KLnm = []
 for x in Pnm:
