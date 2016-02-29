@@ -156,7 +156,10 @@ def calcKLDivergence(P1, P2, L):
         KLD = 0
         for k in P1[i].keys():
             p = P1[i][k]
-            q = P2[i][k]
+            if k in P2[i].keys():
+                q = P2[i][k]
+            else:
+                q = 1e-15
             KLD += p*log(p/q,2)
         K.append(KLD)
     return K 
