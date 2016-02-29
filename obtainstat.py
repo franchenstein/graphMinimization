@@ -160,7 +160,7 @@ def calcKLDivergence(P1, P2, L):
                 q = P2[i][k]
             else:
                 q = 1e-15
-            KLD += p*log(p/q,2)
+            KLD += p*math.log(p/q,2)
         K.append(KLD)
     return K 
     
