@@ -23,7 +23,10 @@ class State:
     
         #Finds and returns a state name from outedges based on a letter.
         matches = [x[1] for x in self.outedges if x[0] == letter]
-        return matches[0]
+        if matches:
+            return matches[0]
+        else:
+            return
         
     def edgeThatLeadsToState(self, stateName):
         '''

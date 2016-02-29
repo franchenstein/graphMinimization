@@ -11,7 +11,7 @@ class Partition(State):
 
     def __init__(self, state):
         #A new partition is initialized with just one state:
-        self.name = state.name
+        self.name = [] if not state.name else [state.name]
         self.outedges = state.outedges
         self.size = 0 if not state.name else 1
         
@@ -25,9 +25,9 @@ class Partition(State):
         if state.name not in self.name:
             #Adds the state's name to the partition, separated by comma:
             if not self.name:
-                self.name = state.name
+                self.name = [state.name]
             else:
-                self.name = self.name + "," + state.name
+                self.name.append(state.name)
             #Adds each outedge of the added state to the partition's edges:
             for edge in state.outedges:
                 if edge not in self.outedges:

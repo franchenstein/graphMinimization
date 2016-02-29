@@ -2,6 +2,7 @@ import graph
 import obtainstat
 import probabilisticState
 from scipy import stats
+from random import random as rd
 
 class ProbabilisticGraph(graph.Graph):
     def __init__(self, states, alphabet):
@@ -28,24 +29,31 @@ class ProbabilisticGraph(graph.Graph):
         oe = []
     	for a in self.alphabet:
    			string = s.name + a
-   			l = len(string)
-   			w = []
-   			for i in range(1,l+1):
-   			    if i < l:
-   			        t = self.stateNamed(string[i:])
-   			    else:
-   			        t = self.root()
-   			    r = self.compareMorphs(s.outedges, t.outedges, alpha, test)
-   			    w.append(r[1])  
-   			arg = w.index(max(w)) + 1
-   			if arg == len(w):
-   				d = self.root()
-   				d = d.name
+   			v = self.stateNamed(string)
+   			if v == None:
+   			    oe.append((a, string, 0.0))
    			else:
-   				d = string[arg:]
-   			for e in s.outedges:
-   				if e[0] == a:
-   				    oe.append((a, d, e[2]))
+   			    l = len(string)
+   			    w = []
+   			    for i in range(1,l+1):
+   			        if i < l:
+   			            t = self.stateNamed(string[i:])
+   			        else:
+   			            t = self.root()
+   			        if t != None:
+   			            r = self.compareMorphs(v.outedges, t.outedges, alpha, test)
+   			        else:
+   			            r = [False, 0.0]
+   			        w.append(r[1])  
+   			    arg = w.index(max(w)) + 1
+   			    if arg == len(w):
+   			        d = self.root()
+   			        d = d.name
+   			    else:
+   			        d = string[arg:]
+   			    for e in s.outedges:
+   			        if e[0] == a:
+   			            oe.append((a, d, e[2]))
         s.outedges = oe
         
     def createInitialPartition(self, wsyn, L, alpha, test):
@@ -78,4 +86,21 @@ class ProbabilisticGraph(graph.Graph):
                 O.extend(a)
             else:
                 return P
+                
+    def generateSequence(self, length, iniState):
+        data = ""
+        s = iniState
+        for i in range(0,length):
+            dist = [0]
+            d = [float(x[2]) for x in s.outedges]
+            dist.extend(d)
+            r = rd()
+            for j in range(0,len(dist)-1):
+                if (dist[j] <= r < dist[j+1]):
+                    a = s.outedges[j]
+                    data += a[0]
+                    w = s.nextStateFromEdge(a[0])
+                    s = self.stateNamed(w)
+                    break
+        return data
                 

@@ -1,139 +1,24 @@
 #!/usr/bin/env
-import state
-import graph
-import probabilisticState
 import probabilisticGraph as pg
-import ptriestate as pts
-import candidacytrie as ct
-import findsynchwords as fsw
-
-testTree = pg.ProbabilisticGraph([],[])
-testTree.parseGraphFile("binshift_1000000_8.txt")
-synchTrie = ct.CandidacyTrie(testTree.states, testTree.alphabet)
-L = 4
-
-r = fsw.findSynchWords(L, synchTrie, testTree)
-
-print "Results for binary shift, 10000000 sequence, L = 8, L1 = 4. \n"
-for x in r:
-	print x.name
-
-print "\n"
-
-L = 5
-
-r = fsw.findSynchWords(L, synchTrie, testTree)
-
-print "Results for binary shift, 10000000 sequence, L = 8, L1 = 5. \n"
-for x in r:
-	print x.name
-
-print "\n"
-
-synchTrie = ct.CandidacyTrie(testTree.states, testTree.alphabet)
+import partition as pt
+import partitionset as ps
+import graphMinimization as gm
 L = 6
-
-r = fsw.findSynchWords(L, synchTrie, testTree)
-
-print "Results for binary shift, 10000000 sequence, L = 8, L1 = 6. \n"
-for x in r:
-	print x.name
-
-print "\n"
-
-testTree.parseGraphFile("evenshift_1000000_8.txt")
-synchTrie = ct.CandidacyTrie(testTree.states, testTree.alphabet)
-L = 4
-
-r = fsw.findSynchWords(L, synchTrie, testTree)
-
-print "Results for even shift, 10000000 sequence, L = 8, L1 = 4. \n"
-for x in r:
-	print x.name
-
-print "\n"
-
-L = 5
-
-r = fsw.findSynchWords(L, synchTrie, testTree)
-
-print "Results for even shift, 10000000 sequence, L = 8, L1 = 5. \n"
-for x in r:
-	print x.name
-
-print "\n"
-
-synchTrie = ct.CandidacyTrie(testTree.states, testTree.alphabet)
-L = 6
-
-r = fsw.findSynchWords(L, synchTrie, testTree)
-
-print "Results for even shift, 10000000 sequence, L = 8, L1 = 6. \n"
-for x in r:
-	print x.name
-
-print "\n"
-
-testTree.parseGraphFile("trishift_1000000_8.txt")
-synchTrie = ct.CandidacyTrie(testTree.states, testTree.alphabet)
-L = 4
-
-r = fsw.findSynchWords(L, synchTrie, testTree)
-
-print "Results for tri shift, 10000000 sequence, L = 8, L1 = 4. \n"
-for x in r:
-	print x.name
-
-print "\n"
-
-L = 5
-
-r = fsw.findSynchWords(L, synchTrie, testTree)
-
-print "Results for tri shift, 10000000 sequence, L = 8, L1 = 5. \n"
-for x in r:
-	print x.name
-
-print "\n"
-
-L = 6
-
-r = fsw.findSynchWords(L, synchTrie, testTree)
-
-print "Results for tri shift, 10000000 sequence, L = 8, L1 = 6. \n"
-for x in r:
-	print x.name
-
-print "\n"
-
-testTree.parseGraphFile("ternaryshift_10000000_10.txt")
-synchTrie = ct.CandidacyTrie(testTree.states, testTree.alphabet)
-L = 4
-
-r = fsw.findSynchWords(L, synchTrie, testTree)
-
-print "Results for ternary shift, 10000000 sequence, L = 8, L1 = 4. \n"
-for x in r:
-	print x.name
-
-print "\n"
-
-L = 5
-
-r = fsw.findSynchWords(L, synchTrie, testTree)
-
-print "Results for ternary shift, 10000000 sequence, L = 8, L1 = 5. \n"
-for x in r:
-	print x.name
-
-print "\n"
-
-L = 6
-
-r = fsw.findSynchWords(L, synchTrie, testTree)
-
-print "Results for ternary shift, 10000000 sequence, L = 8, L1 = 6. \n"
-for x in r:
-	print x.name
-
-print "\n"
+g = pg.ProbabilisticGraph([],[])
+g.parseGraphFile("./Resultados/graph_evenshift_10000000_L15.txt")
+w = g.stateNamed("0")
+Q = g.createInitialPartition(w, L, 0.95, "chi-squared")
+P = []
+for q in Q:
+    p = q.pop(0)
+    p1 = pt.Partition(p)
+    while q:
+        p1.addToPartition(q.pop(0))
+    P.append(p1)    
+PS = ps.PartitionSet(P)
+g = g.removeUnreachableStates()
+w = [x for x in g.states if len(x.name) < L]
+g = pg.ProbabilisticGraph(w, g.alphabet)
+gp = gm.moore(PS, g)
+len(gp.partitions)
+h = gp.recoverGraph(g)

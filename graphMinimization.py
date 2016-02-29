@@ -17,7 +17,8 @@ def main(argv):
     g = graph.Graph([],[]) #Blank graph
     g.parseGraphFile(inFile) #Updated with graph on file
     g = g.removeUnreachableStates()
-    gp = moore(g)
+    P = initialPartition(g)
+    gp = moore(P, g)
     g = graph.Graph(recoverEdgesForPartition(g, gp), g.alphabet)
     g.saveGraphFile(outFile) #Saves graph to file
 
@@ -36,17 +37,21 @@ def coarsestPartition(P, Q):
     return l
     
 def intersection(p1, p2):
-    name = ""
-    p1names = p1.name.split(",")
-    p2names = p2.name.split(",")
-    for a in p1names:
-        for b in p2names:
+    name = []
+    for a in p1.name:
+        for b in p2.name:
             if a == b:
                 if not name:
-                    name = a
+                    name = [a]
                 else:
-                    name = name + "," + a                     
-    return partition.Partition(state.State(name, []))
+                    name.append(a) 
+    if name:
+        p = partition.Partition(state.State(name.pop(0), []))
+        for n in name:
+            p.addToPartition(state.State(n,[])) 
+    else:
+        p = partition.Partition(state.State(name,[]))             
+    return p
                 
 def splitting(p, a, Q):
     p1 = partition.Partition(state.State("",[]))
@@ -90,9 +95,9 @@ def initialPartition(g):
     P = partitionset.PartitionSet(partitions)
     return P            
     
-def moore(g):
+def moore(P, g):
     #Initial partition based on outgoing edges:
-    P = initialPartition(g)   
+    #P = initialPartition(g)   
     #The loop will end when no new partitions are acquired:
     while True:
         P_old = P #Stores the current partition before the loop
@@ -103,25 +108,27 @@ def moore(g):
                 #Creates partitions based on the follower sets:
                 splits = splitting(p, a, g.states)
                 #Eliminates empty partitions:
-                validSplits = [split for split in splits if split.name != ""]
+                validSplits = [split for split in splits if split.name]
                 #Append the current letter's partitions:
                 pa.append(validSplits)
                         
             Pa = pa[0]
             for q in pa[1:]:
                 cp = coarsestPartition(Pa, q)
-                Pa = noRedundancy(cp, Pa)
+                #Pa = noRedundancy(cp, Pa)
+                Pa = cp
             P_alphabet.append(Pa)         
         
         P_b = P_alphabet[0]
         for pb in P_alphabet[1:]:
             cp = coarsestPartition(P_b, pb)
-            P_b = noRedundancy(cp, P_b)    
+            #P_b = noRedundancy(cp, P_b)
+            P_b = cp
                                    
         newPartitions = coarsestPartition(P.partitions, P_b)
-        newNames = [p.name for p in newPartitions]
-        oldNames = [p.name for p in P_old.partitions]
-        if newNames == oldNames:
+        newNames = [tuple(p.name) for p in newPartitions]
+        oldNames = [tuple(p.name) for p in P_old.partitions]
+        if set(newNames) == set(oldNames):
             break
         else:
             P.partitions = newPartitions           
