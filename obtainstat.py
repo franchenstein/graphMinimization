@@ -144,24 +144,17 @@ def calcCondEntropy(P, P_cond, L):
                     acc -= l1[a]*log2(l2[s])
         h.append(acc)
         l += 1
-    plt.plot(h)
-    x1,x2,y1,y2 = plt.axis()
-    plt.axis((x1,x2,0,1))
-    plt.show()
     return h
     
 def calcKLDivergence(P1, P2, L):
-    K = []
-    for i in range(0,L):
-        KLD = 0
-        for k in P1[i].keys():
-            p = P1[i][k]
-            if k in P2[i].keys():
-                q = P2[i][k]
-            else:
-                q = 1e-15
-            KLD += p*math.log(p/q,2)
-        K.append(KLD)
+    K = 0
+    for k in P1[L].keys():
+        p = P1[L][k]
+        if k in P2[L].keys():
+            q = P2[L][k]
+        else:
+            q = 1e-15
+        K += p*math.log(p/q,2)
     return K 
     
 def saveAsStates(P_cond, alphabet, filePath):
