@@ -3,6 +3,7 @@ from numpy import log2
 import matplotlib.pyplot as plt
 import shifts
 import multiprocessing as mp
+import math
 
 def calcProbsForOneLength(data, l, alphabet):
     d = dict()
@@ -147,7 +148,18 @@ def calcCondEntropy(P, P_cond, L):
     x1,x2,y1,y2 = plt.axis()
     plt.axis((x1,x2,0,1))
     plt.show()
-    return h     
+    return h
+    
+def calcKLDivergence(P1, P2, L):
+    K = []
+    for i in range(0,L):
+        KLD = 0
+        for k in P1[i].keys():
+            p = P1[i][k]
+            q = P2[i][k]
+            KLD += p*log(p/q,2)
+        K.append(KLD)
+    return K 
     
 def saveAsStates(P_cond, alphabet, filePath):
     f = open(filePath, 'w') #File open as writeble.
