@@ -1,31 +1,23 @@
-o#!/usr/bin/env
+#!/usr/bin/env
 import obtainstat as os
 import matplotlib as plt
 import multiprocessing as mp
 
 q = mp.Queue()
 
-f = open("../Sequencias/MH6.dat", 'r')
-so = ""
-for l in f.readlines():
-	so += l[:len(l)-1]
-f.close()
-
-so = list(so)
-for i in range(0,len(so)):
-    so[i] = int(so[i])
+so = os.generate("tri", 10000000, [0.5, 0.8, 0.7])
 
 L = 15
 Po, alpho = os.calcProbs(so, L, q)
 Pcondo = os.calcCondProbs(Po, L, alpho)
 Ho = os.calcCondEntropy(Po, Pcondo, L)
 
-f1 = "./Resultados/sequence_henon_generated_L"
+f1 = "./Resultados/sequence_trishift_generated_L"
 f2 = "_10000000.txt"
 f2nm = "_10000000_NoMoore.txt"
 
 s = []
-for i in range(6,14,2):
+for i in range(4,12,2):
     f = f1+str(i)+f2
     fi = open(f)
     s.append(list(fi.read()))
@@ -52,7 +44,7 @@ for x in P:
     KL.append(kl)
 
 snm = []
-for i in range(6,14,2):
+for i in range(4,12,2):
     f = f1+str(i)+f2nm
     fi = open(f)
     snm.append(list(fi.read()))
@@ -78,7 +70,7 @@ for x in Pnm:
     kl =  os.calcKLDivergence(Po, x, 10)
     KLnm.append(kl)
 
-f = open("./Resultados/sequence_henon_crissis.txt", 'r')
+f = open("./Resultados/sequence_trishift_crissis.txt", 'r')
 sc = list(f.read())
 sc = [int(x) for x in sc]
 f.close()
@@ -88,10 +80,10 @@ Pcond_sc = os.calcCondProbs(Psc, L, alphsc)
 Hsc = os.calcCondEntropy(Psc, Pcond_sc, L)
 ksc = os.calcKLDivergence(Po,Psc,10)
 Ksc = []
-for i in range(6,14,2):
+for i in range(4,12,2):
 	Ksc.append(ksc)
 
-f = open("entropies_henon.txt", 'w')
+f = open("entropies_trishift.txt", 'w')
 
 l = [str(x) for x in Ho]
 l = ','.join(l) + "\n"
@@ -113,7 +105,7 @@ f.write(l)
 
 f.close()
 
-f = open("kldivergences_henon.txt", 'w')
+f = open("kldivergences_trishift.txt", 'w')
 k1 = [str(x) for x in KL]
 k1 = ",".join(k1) + "\n"
 k2 = [str(x) for x in KLnm]
