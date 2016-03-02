@@ -2,6 +2,7 @@
 import obtainstat as os
 import matplotlib as plt
 import multiprocessing as mp
+import numpy as np
 
 q = mp.Queue()
 
@@ -117,3 +118,24 @@ f.write(k2)
 f.write(k3)
 f.close()
     
+A = []
+a = np.correlate(so, so, 'full')
+A.append(a)
+
+for x in s:
+	a = np.correlate(x, x, 'full')
+	A.append(a)
+
+for x in snm:
+	a = np.correlate(x, x, 'full')
+	A.append(a)
+
+a = np.correlate(sc, sc, 'full')
+A.append(a)
+
+f = open("./Resultados/correlations_tri.txt", 'w')
+for a in A:
+	l = [str(x) for x in a]
+	l = ",".join(l) + "\n"
+	f.write(l)
+f.close()

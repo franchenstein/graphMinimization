@@ -41,13 +41,13 @@ for L in range(4,12,2):
     f.write(d)
     f.close()
     #Crissis:
-    g.parseGraphFile("./Resultados/graph_trishift_L15.txt")
+    g.parseGraphFile("./Resultados/graph_trishift_asok_L15.txt")
     w = g.stateNamed("00")
     c = cr.crissis(w, g, 0.95, "chi-squared")
     c.saveGraphFile("./Resultados/graph_trishift_crissis.txt")
     d = c.generateSequence(10001000, c.stateNamed("00"))
     d = d[:10000000]
-    f = open("./Resultados/sequence_trishift_crissis.txt")
+    f = open("./Resultados/sequence_trishift_crissis.txt", 'w')
     f.write(d)
     f.close()
       

@@ -47,7 +47,7 @@ for L in range(6,14,2):
     c.saveGraphFile("./Resultados/graph_henon_crissis.txt")
     d = c.generateSequence(10001000, c.stateNamed("1111"))
     d = d[:10000000]
-    f = open("./Resultados/sequence_henon_crissis.txt")
+    f = open("./Resultados/sequence_henon_crissis.txt", 'w')
     f.write(d)
     f.close()
       
