@@ -84,7 +84,7 @@ Ksc = []
 for i in range(4,12,2):
 	Ksc.append(ksc)
 
-f = open("entropies_trishift.txt", 'w')
+f = open("./Resultados/entropies_trishift.txt", 'w')
 
 l = [str(x) for x in Ho]
 l = ','.join(l) + "\n"
@@ -106,7 +106,7 @@ f.write(l)
 
 f.close()
 
-f = open("kldivergences_trishift.txt", 'w')
+f = open("./Resultados/kldivergences_trishift.txt", 'w')
 k1 = [str(x) for x in KL]
 k1 = ",".join(k1) + "\n"
 k2 = [str(x) for x in KLnm]

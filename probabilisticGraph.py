@@ -98,7 +98,7 @@ class ProbabilisticGraph(graph.Graph):
             c = 0
             for j in range(0,len(dist)-1):
                 c += dist[j]
-                if (c <= r < c + dist[j+1]):
+		if (c < r <= c + dist[j+1]):
                     a = s.outedges[j]
                     data += a[0]
                     w = s.nextStateFromEdge(a[0])

@@ -19,7 +19,7 @@ for L in range(4,12,2):
     f.close()  
 g.parseGraphFile("./Resultados/graph_trishift_crissis.txt")
 w = g.stateNamed("00")
-d = g.generateSequence(10000000, c.stateNamed("00"))
+d = g.generateSequence(10000000, g.stateNamed("00"))
 d = d[:10000000]
 f = open("./Resultados/sequence_trishift_crissis.txt", 'w')
 f.write(d)

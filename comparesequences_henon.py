@@ -1,4 +1,4 @@
-o#!/usr/bin/env
+#!/usr/bin/env
 import obtainstat as os
 import matplotlib as plt
 import multiprocessing as mp
@@ -91,7 +91,7 @@ Ksc = []
 for i in range(6,14,2):
 	Ksc.append(ksc)
 
-f = open("entropies_henon.txt", 'w')
+f = open("./Resultados/entropies_henon.txt", 'w')
 
 l = [str(x) for x in Ho]
 l = ','.join(l) + "\n"

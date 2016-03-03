@@ -5,13 +5,7 @@ import multiprocessing as mp
 
 q = mp.Queue()
 
-f = open("./Resultados/sequence_evenshift_10000000_original.txt", 'r')
-so = f.read()
-f.close()
-
-so = list(so)
-for i in range(0,len(so)):
-    so[i] = int(so[i])
+so = os.generate("even", 10000000, [0.99])
 
 Po, alpho = os.calcProbs(so, 12, q)
 Pcondo = os.calcCondProbs(Po, 12, alpho)
