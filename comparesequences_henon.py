@@ -3,6 +3,15 @@ import obtainstat as os
 import matplotlib as plt
 import multiprocessing as mp
 
+def autocorrelate(x, upTo):
+    A = []
+    for i in range(0,upTo):
+        acc = 0
+        for j in range(0, len(x) - i):
+            acc += x[i + j]*x[j]
+        A.append(acc)
+    return A
+
 q = mp.Queue()
 
 f = open("../Sequencias/MH6.dat", 'r')
@@ -19,6 +28,7 @@ L = 15
 Po, alpho = os.calcProbs(so, L, q)
 Pcondo = os.calcCondProbs(Po, L, alpho)
 Ho = os.calcCondEntropy(Po, Pcondo, L)
+Ao = autocorrelate(so, 200)
 
 f1 = "./Resultados/sequence_henon_generated_L"
 f2 = "_10000000.txt"
@@ -38,6 +48,7 @@ for x in s:
 P = []
 Pcond = []
 H = []
+A = []
 for x in s:
     p, alph = os.calcProbs(x, L, q)
     P.append(p) 
@@ -45,6 +56,8 @@ for x in s:
     Pcond.append(pcond)
     h = os.calcCondEntropy(p, pcond, L)
     H.append(h)
+    a = autocorrelate(x, 200)
+    A.append(a)
     
 KL = []
 for x in P:
@@ -65,6 +78,7 @@ for x in snm:
 Pnm = []
 Pcond_nm = []
 Hnm = []
+Anm = []
 for x in snm:
     p, alph = os.calcProbs(x, L, q)
     Pnm.append(p) 
@@ -72,6 +86,8 @@ for x in snm:
     Pcond_nm.append(pcond)
     h = os.calcCondEntropy(p, pcond, L)
     Hnm.append(h)
+    anm = autocorrelate(x, 200)
+    Anm.append(anm)
     
 KLnm = []
 for x in Pnm:
@@ -90,6 +106,35 @@ ksc = os.calcKLDivergence(Po,Psc,10)
 Ksc = []
 for i in range(6,14,2):
 	Ksc.append(ksc)
+Asc = autocorrelate(sc, 200)
+	
+f = open("./Resultados/sequence_henon_dmarkov_D9_10000000.txt", 'r')
+sd9 = list(f.read())
+sd9 = [int(x) for x in sd9]
+f.close()
+
+Pd9, alphd9 = os.calcProbs(sd9, L, q)
+Pcond_d9 = os.calcCondProbs(Pd9, L, alphd9)
+Hd9 = os.calcCondEntropy(Pd9, Pcond_d9, L)
+kd9 = os.calcKLDivergence(Po,Pd9,10)
+Kd9 = []
+for i in range(6,14,2):
+	Kd9.append(kd9)
+Ad9 = autocorrelate(sd9, 200)
+	
+f = open("./Resultados/sequence_henon_dmarkov_D10_10000000.txt", 'r')
+sd10 = list(f.read())
+sd10 = [int(x) for x in sd10]
+f.close()
+
+Pd10, alphd10 = os.calcProbs(sd10, L, q)
+Pcond_d10 = os.calcCondProbs(Pd10, L, alphd10)
+Hd10 = os.calcCondEntropy(Pd10, Pcond_d10, L)
+kd10 = os.calcKLDivergence(Po,Pd10,10)
+Kd10 = []
+for i in range(6,14,2):
+	Kd10.append(kd10)
+Ad10 = autocorrelate(sd10, 200)
 
 f = open("./Resultados/entropies_henon.txt", 'w')
 
@@ -110,6 +155,14 @@ for h in Hnm:
 l = [str(x) for x in Hsc]
 l = ','.join(l)
 f.write(l)
+    
+l = [str(x) for x in Hd9]
+l = ','.join(l) + "\n"
+f.write(l)
+    
+l = [str(x) for x in Hd10]
+l = ','.join(l) + "\n"
+f.write(l)
 
 f.close()
 
@@ -119,9 +172,37 @@ k1 = ",".join(k1) + "\n"
 k2 = [str(x) for x in KLnm]
 k2 = ",".join(k2) + "\n"
 k3 = [str(x) for x in Ksc]
-k3 = ', '.join(k3)
+k3 = ', '.join(k3) + "\n"
+k4 = [str(x) for x in Kd9]
+k4 = ', '.join(k4) + "\n"
+k5 = [str(x) for x in Kd10]
+k5 = ', '.join(k5)
 f.write(k1)
 f.write(k2)
 f.write(k3)
+f.write(k4)
+f.write(k5)
 f.close()
+
+f = open("autocorrelations_henon.txt", 'w')
+a0 = [str(x) for x in Ao]
+a0 = ",".join(a) + "\n"
+f.write(a0)
+for a in A:
+    l = [str(x) for x in a]
+    l = ",".join(l) + "\n"
+    f.write(l)
+for a in Anm:
+    l = [str(x) for x in a]
+    l = ",".join(l) + "\n"
+    f.write(l)
+asc = [str(x) for x in Asc]
+l = ",".join(asc) + "\n"
+f.write(l)
+ad9 = [str(x) for x in Ad9]
+l = ",".join(ad9) + "\n"
+f.write(l)
+ad10 = [str(x) for x in Ad10]
+l = ",".join(ad10) + "\n"
+f.write(l)
     

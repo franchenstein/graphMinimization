@@ -90,6 +90,7 @@ class ProbabilisticGraph(graph.Graph):
     def generateSequence(self, length, iniState):
         data = ""
         s = iniState
+        visitedStates = [s.name]
         for i in range(0,length):
             dist = [0]
             d = [float(x[2]) for x in s.outedges]
@@ -98,11 +99,14 @@ class ProbabilisticGraph(graph.Graph):
             c = 0
             for j in range(0,len(dist)-1):
                 c += dist[j]
-		if (c < r <= c + dist[j+1]):
+                if (c < r <= c + dist[j+1]):
                     a = s.outedges[j]
                     data += a[0]
                     w = s.nextStateFromEdge(a[0])
                     s = self.stateNamed(w)
+                    if s.name not in visitedStates:
+                        visitedStates.append(s.name)
                     break
+        print len(visitedStates)
         return data
                 
