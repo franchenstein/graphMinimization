@@ -32,7 +32,7 @@ for alpha in alpharange:
     g = pg.ProbabilisticGraph(w, g.alphabet)
     gp = gm.moore(PS, g)
     h = gp.recoverGraph(g)
-    f1 = "./Resultados/graph_henon_generated_L"+str(L)+".txt"
+    f1 = "./Resultados/graph_henon_generated_alpha"+str(alpha)+".txt"
     h.saveGraphFile(f1)
     d = h.generateSequence(10000000, h.stateNamed("1111"))
     d = d[:10000000]
