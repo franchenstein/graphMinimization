@@ -10,7 +10,8 @@ def autocorrelate(x, upTo):
         for j in range(0, len(x) - i):
             acc += x[i + j]*x[j]
         A.append(acc)
-    return A
+    B = [x/max(A) for x in A]
+    return B
 
 q = mp.Queue()
 
@@ -137,7 +138,7 @@ for i in range(6,14,2):
 	Kd10.append(kd10)
 Ad10 = autocorrelate(sd10, 200)
 
-f = open("./Resultados/entropies_henon.txt", 'w')
+f = open("./Resultados/entropies_henon_alpha.txt", 'w')
 
 l = [str(x) for x in Ho]
 l = ','.join(l) + "\n"
@@ -167,7 +168,7 @@ f.write(l)
 
 f.close()
 
-f = open("kldivergences_henon.txt", 'w')
+f = open("kldivergences_henon_alpha.txt", 'w')
 k1 = [str(x) for x in KL]
 k1 = ",".join(k1) + "\n"
 k2 = [str(x) for x in KLnm]
@@ -185,7 +186,7 @@ f.write(k4)
 f.write(k5)
 f.close()
 
-f = open("autocorrelations_henon.txt", 'w')
+f = open("autocorrelations_henon_alpha.txt", 'w')
 a0 = [str(x) for x in Ao]
 a0 = ",".join(a0) + "\n"
 f.write(a0)
