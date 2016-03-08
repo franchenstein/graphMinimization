@@ -195,4 +195,15 @@ def generate(shiftType, L, p):
     elif s == "tri":
         return shifts.triShift(L, p) 
     elif s == "ternary":
-        return shifts.ternaryShift(L, p)                                  
+        return shifts.ternaryShift(L, p)  
+        
+def autocorrelation(x, upTo):
+    A = []
+    for i in range(0,upTo):
+        acc = 0
+        for j in range(0, len(x) - i):
+            acc += x[i + j]*x[j]
+        A.append(acc)
+    m = max(A)
+    B = [float(x)/float(m) for x in A]
+    return B                                
