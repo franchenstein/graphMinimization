@@ -268,7 +268,7 @@ def compareSequences(t, l, a, ranges):
     path = "./Resultados/conditional_probabilities_"+t+".txt"
     f = open(path, 'w')
     i = 1
-    for pc in P_Cond:
+    for pc in P_cond:
 	print i
 	i += 1
         f.write(resultToString(pc))
