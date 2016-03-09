@@ -1,6 +1,6 @@
 #!/usr/bin/env
 import sys, getopt
-import obtainstats as os
+import obtainstat as os
 import probabilisticGraph as pg
 import multiprocessing as mp
 import partition as pt
@@ -34,6 +34,10 @@ def stringToResult(s):
     x = s[:-1].split(',')
     y = [float(i) for i in x]
     
+def resultToString(r):
+    l = [str(x) for x in r]
+    l = ','.join(l) + '\n'
+    return l
     
 def defineRanges(l, a):
     if l:
@@ -80,7 +84,7 @@ def generateGraphs(t, ranges):
                 P.append(p1)
             PS = ps.PartitionSet(P)
             #No Moore sequence and graph:
-            h = ps.recoverGraph(g)
+            h = PS.recoverGraph(g)
             path = "./Resultados/graph_"+t+"generated_L_"+str(L)+"_alpha_"+str(alpha)+"_NoMoore.txt"
             h.saveGraphFile(path)
             
@@ -89,7 +93,7 @@ def generateGraphs(t, ranges):
             shortStates = [x for x in i.states if len(x.name) < L]
             i = pg.ProbabilisticGraph(shortStates, i.alphabet)
             ip = gm.moore(PS, i)
-            j = ip.recoverGraph(ip)
+            j = ip.recoverGraph(i)
             path = "./Resultados/graph_"+t+"generated_L_"+str(L)+"_alpha_"+str(alpha)+".txt"
             j.saveGraphFile(path)
         #CRiSSiS:
@@ -180,20 +184,20 @@ def compareSequences(t, l, a, ranges):
         P_cond.append(pcond)
         h = os.calcCondEntropy(p, pcond, 15)
         H.append(h)
-        a = os.autocorrelate(seq, 200)
+        a = os.autocorrelation(seq, 200)
         A.append(a)
-        if seq not s[0]:
-            k = os.calcKLDivergence(s[0], seq, 10)
-        K.append(k)
+        if seq is not s[0]:
+            k = os.calcKLDivergence(P[0], p, 10)
+            K.append(k)
         
     path = "./Resultados/entropies_"+t+".txt"
-    f = open(path)
+    f = open(path, 'w')
     for h in H:
         f.write(resultToString(h))
     f.close()
     
     path = "./Resultados/autocorrelations_"+t+".txt"
-    f = open(path)
+    f = open(path, 'w')
     for a in A:
         f.write(resultToString(a))
     f.close()
@@ -217,7 +221,7 @@ def compareSequences(t, l, a, ranges):
         else:
             KLD.append(kaux)
             k = 0
-    f = open(path)
+    f = open(path, 'w')
     for kld in KLD:
         f.write(resultToString(kld))
     f.close()
@@ -231,7 +235,7 @@ def main(argv):
         generateGraphs(t, ranges)
     if s:
         generateSequences(t, ranges)
-    compareSequences(t, ranges)
+    compareSequences(t, l, a, ranges)
     return 0
 
 def readInput(argv):
@@ -252,13 +256,25 @@ def readInput(argv):
 		elif opt in ("-t", "--type"):
 			t = arg
 		elif opt in ("-g", "--graph"):
-			g = bool(arg)
+			if arg == 'True':
+			    g = True
+			else:
+			    g = False
 		elif opt in ("-s", "--sequence"):
-			s = bool(arg)
+			if arg == 'True':
+			    s = True
+			else:
+			    s = False
 		elif opt in ("-l", "--L"):
-			l = bool(arg)
+			if arg == 'True':
+			    l = True
+			else:
+			    l = False
 		elif opt in ("-a", "--alpha"):
-			a = bool(arg)
+			if arg == 'True':
+			    a = True
+			else:
+			    a = False
 	return [t, g, s, l, a]
 
 if __name__ == "__main__":

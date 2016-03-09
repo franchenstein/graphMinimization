@@ -97,7 +97,7 @@ class Graph:
                 edgeline = ''
                 for element in e:
                     conn = ' ' if i < len(e) else '\n'
-                    edgeline = edgeline + element + conn
+                    edgeline = edgeline + str(element) + conn
                     i += 1
                 lines.append(edgeline)
             lines.append('\n') #Blank line indicating end of state
