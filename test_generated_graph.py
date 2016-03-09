@@ -55,6 +55,7 @@ def defineRanges(l, a):
 #Main functions:
 def generateGraphs(t, ranges):
     g = pg.ProbabilisticGraph([],[])
+    print "Opening original tree\n"
     if t == "henon":
         g.parseGraphFile("./Resultados/graph_henon_L15.txt")
         w = g.stateNamed("1111")
@@ -66,14 +67,20 @@ def generateGraphs(t, ranges):
         w = g.stateNamed("00") 
     
     #D-Markov:    
+    print "Creating D-Markov Graph\n"
     dm = dmarkov.DMarkov(g, 9)
     path = "./Resultados/graph_"+t+"_dmarkov_9.txt"
     dm.saveGraphFile(path)  
         
     lrange, alpharange = ranges
-        
+    
+    print "Creating partitions\n"
     for alpha in alpharange:
+    	print "alpha:"
+    	print alpha
         for L in lrange:
+	    print "L:"
+	    print L
             Q = g.createInitialPartition(w, L, alpha, "chi-squared")
             P = []
             for q in Q:
@@ -84,11 +91,13 @@ def generateGraphs(t, ranges):
                 P.append(p1)
             PS = ps.PartitionSet(P)
             #No Moore sequence and graph:
+	    print "Generating NoMoore graphs\n"
             h = PS.recoverGraph(g)
             path = "./Resultados/graph_"+t+"generated_L_"+str(L)+"_alpha_"+str(alpha)+"_NoMoore.txt"
             h.saveGraphFile(path)
             
             #With Moore sequence and graph:
+ 	    print "Generating graphs after Moore\n"
             i = g.removeUnreachableStates()
             shortStates = [x for x in i.states if len(x.name) < L]
             i = pg.ProbabilisticGraph(shortStates, i.alphabet)
@@ -97,6 +106,7 @@ def generateGraphs(t, ranges):
             path = "./Resultados/graph_"+t+"generated_L_"+str(L)+"_alpha_"+str(alpha)+".txt"
             j.saveGraphFile(path)
         #CRiSSiS:
+	print "Generating CRiSSiS graph\n"
         c = cr.crissis(w, g, alpha, "chi-squared")
         path = "./Resultados/graph_"+t+"generated_L_"+str(L)+"_alpha_"+str(alpha)+"_crissis.txt"
         c.saveGraphFile(path)
@@ -229,13 +239,14 @@ def compareSequences(t, l, a, ranges):
     return
             
 def main(argv):
-    t, g, s, l, a = readInput(argv)
+    t, g, s, l, a, c = readInput(argv)
     ranges = defineRanges(l, a)
     if g:
         generateGraphs(t, ranges)
     if s:
         generateSequences(t, ranges)
-    compareSequences(t, l, a, ranges)
+    if c:
+    	compareSequences(t, l, a, ranges)
     return 0
 
 def readInput(argv):
@@ -244,14 +255,15 @@ def readInput(argv):
 	g = True
 	a = True
 	l = True
+	c = True
 	try:
-		opts, args = getopt.getopt(argv, "ht:g:s:l:a", ["type=", "graph=", "sequence=", "L=", "alpha="])
+		opts, args = getopt.getopt(argv, "ht:g:s:l:a:c", ["type=", "graph=", "sequence=", "L=", "alpha=", "compare="])
 	except getopt.GetoptError:
-		print 'test_generated_graph.py -t <type> -g <graph> -s <sequence> -l <L> -a <alpha>'
+		print 'test_generated_graph.py -t <type> -g <graph> -s <sequence> -l <L> -a <alpha> -c <compare>'
 		sys.exit(2)
 	for opt, arg in opts:
 		if opt == "-h":
-			print 'test_generated_graph.py -t <type> -g <graph> -s <sequence> -l <L> -a <alpha>'
+			print 'test_generated_graph.py -t <type> -g <graph> -s <sequence> -l <L> -a <alpha> -c <compare>'
 			sys.exit()
 		elif opt in ("-t", "--type"):
 			t = arg
@@ -275,7 +287,12 @@ def readInput(argv):
 			    a = True
 			else:
 			    a = False
-	return [t, g, s, l, a]
+		elif opt in ("-c","--compare"):
+		    	if arg == 'True':
+			    c = True
+			else:
+			    c = False
+	return [t, g, s, l, a, c]
 
 if __name__ == "__main__":
 	main(sys.argv[1:])
