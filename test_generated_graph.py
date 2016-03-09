@@ -229,30 +229,50 @@ def compareSequences(t, l, a, ranges):
     pd = P[1]
     k = os.calcKLDivergence(p0, pd, 10)
     if a:
-	rng = (0, len(alpharange))
-	K.append([k for i in rng])
-	knm = []
-	km = []
-	kc = []
-	for i in rng:
-	    knm.append(os.calcKLDivergence(p0, P[2+i], 10))
-	    km.append(os.calcKLDivergence(p0, P[3+i], 10))
-	    kc.append(os.calcKLDivergence(p0, P[4+i], 10))
-	K.append(knm)
-	K.append(km)
-	K.append(kc)
+	    rng = (0, len(alpharange))
+	    K.append([k for i in rng])
+	    knm = []
+	    km = []
+	    kc = []
+	    for i in rng:
+	        knm.append(os.calcKLDivergence(p0, P[2+i], 10))
+	        km.append(os.calcKLDivergence(p0, P[3+i], 10))
+	        kc.append(os.calcKLDivergence(p0, P[4+i], 10))
+	    K.append(knm)
+	    K.append(km)
+	    K.append(kc)
     if l:
-	rng = (0, len(lrange))
-	K.append([k for i in rng])
-	knm = []
-	km = []
-	for i in rng:
-	    knm.append(os.calcKLDivergence(p0, P[2+i], 10))
-	    km.append(os.calcKLDivergence(p0, P[3+i], 10))
-	K.append(knm)
-	K.append(km)
-	kc = os.calcKLDivergence(p0, P[-1], 10)
-	K.append([kc for i in rng])
+	    rng = (0, len(lrange))
+	    K.append([k for i in rng])
+	    knm = []
+	    km = []
+	    for i in rng:
+	        knm.append(os.calcKLDivergence(p0, P[2+i], 10))
+	        km.append(os.calcKLDivergence(p0, P[3+i], 10))
+	    K.append(knm)
+	    K.append(km)
+	    kc = os.calcKLDivergence(p0, P[-1], 10)
+	    K.append([kc for i in rng])
+    
+    print "Saving Probabilities"
+    path = "./Resultados/probabilities_"+t+".txt"
+    f = open(path, 'w')
+    i = 1
+    for p in P:
+	print i
+	i += 1
+        f.write(resultToString(p))
+    f.close()
+    
+    print "Saving Conditional Probabilities"
+    path = "./Resultados/conditional_probabilities_"+t+".txt"
+    f = open(path, 'w')
+    i = 1
+    for pc in P_Cond:
+	print i
+	i += 1
+        f.write(resultToString(pc))
+    f.close()
     
     print "Saving Entropies"
     path = "./Resultados/entropies_"+t+".txt"
