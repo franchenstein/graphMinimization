@@ -51,20 +51,24 @@ def defineRanges(l, a):
         alpharange = [0.95]
         
     return [lrange, alpharange]
+
+def openGraph(t, g):
+    if t == "henon":
+	g.parseGraphFile("./Resultados/graph_henon_L15.txt")
+	w = g.stateNamed("1111")
+    elif t == "even":
+	g.parseGraphFile("./Resultados/graph_evenshift_10000000_L15.txt")
+	w = g.stateNamed("0")
+    elif t == "tri":
+	g.parseGraphFile("./Resultados/graph_trishift_10000000_L15.txt")
+	w = g.stateNamed("00")
+    return [g, w]
     
 #Main functions:
 def generateGraphs(t, ranges):
     g = pg.ProbabilisticGraph([],[])
     print "Opening original tree\n"
-    if t == "henon":
-        g.parseGraphFile("./Resultados/graph_henon_L15.txt")
-        w = g.stateNamed("1111")
-    elif t == "even":
-        g.parseGraphFile("./Resultados/graph_evenshift_10000000_L15.txt")
-        w = g.stateNamed("0") 
-    elif t == "tri":
-        g.parseGraphFile("./Resultados/graph_trishift_10000000_L15.txt")
-        w = g.stateNamed("00") 
+    g, w = openGraph(t, g) 
     
     #D-Markov:    
     print "Creating D-Markov Graph\n"
@@ -81,6 +85,7 @@ def generateGraphs(t, ranges):
         for L in lrange:
 	    print "L:"
 	    print L
+	    g, w = openGraph(t, g)
             Q = g.createInitialPartition(w, L, alpha, "chi-squared")
             P = []
             for q in Q:
@@ -133,27 +138,36 @@ def generateSequences(t, ranges):
     
     lrange, alpharange = ranges
     
+    print "Generating D-Markov Sequence"
     #D-Markov:    
     path = "./Resultados/graph_"+t+"_dmarkov_9.txt"
     g.parseGraphFile(path)
     generateAndSaveSequences(g, g.states[0], t, 'X', 10000000, 'X', '_dmarkov9')
     
     for alpha in alpharange:
+	print "Alpha:"
+	print alpha
         for L in lrange:
+	    print "L:"
+	    print L
             #No Moore:
+	    print "Generating NoMoore Sequence"
             path = "./Resultados/graph_"+t+"generated_L_"+str(L)+"_alpha_"+str(alpha)+"_NoMoore.txt"
             g.parseGraphFile(path)
             generateAndSaveSequences(g, g.stateNamed(wsyn), t, L, 10000000, alpha, '_NoMoore')
             #With Moore:
+	    print "Generating Sequence W/ Moore"
             path = "./Resultados/graph_"+t+"generated_L_"+str(L)+"_alpha_"+str(alpha)+".txt"
             g.parseGraphFile(path)
             generateAndSaveSequences(g, g.stateNamed(wsyn), t, L, 10000000, alpha, '')
+	print "Generating CRiSSiS Sequence"
         path = "./Resultados/graph_"+t+"generated_L_"+str(L)+"_alpha_"+str(alpha)+"_crissis.txt"
         g.parseGraphFile(path)
         generateAndSaveSequences(g, g.stateNamed(wsyn), t, L, 10000000, alpha, '_crissis')    
     return
     
 def compareSequences(t, l, a, ranges):
+    print "Opening original sequence"
     if t == "henon":
         path = "../Sequencias/MH6.dat"
     elif t == "even":
@@ -162,6 +176,7 @@ def compareSequences(t, l, a, ranges):
         path = "./Resultados/sequence_trishift_original_10000000.txt"
     s = []
     s.append(readSequenceFile(path))
+    print "Opening D-Markov Sequence"
     path = "./Resultados/sequence_"+t+"generated_L_X_alpha_X_dmarkov9.txt"
     s.append(readSequenceFile(path))
     
@@ -170,13 +185,20 @@ def compareSequences(t, l, a, ranges):
     #Opening files first. If error occurs here, no time was wasted processing
     #what will need to be processed again once this functions is ran again
     for alpha in alpharange:
+        print "Alpha:"
+	print alpha
         for L in lrange:
+	    print "L:"
+	    print L
             #No Moore:
+	    print "Opening No Moore Sequence"
             path = "./Resultados/sequence_"+t+"generated_L_"+str(L)+"_alpha_"+str(alpha)+"_NoMoore.txt"
             s.append(readSequenceFile(path))
             #With Moore:
+	    print "Opening sequence w/ Moore"
             path = "./Resultados/sequence_"+t+"generated_L_"+str(L)+"_alpha_"+str(alpha)+".txt"
             s.append(readSequenceFile(path))
+	print "Opening CRiSSiS Sequence"
         path = "./Resultados/sequence_"+t+"generated_L_"+str(L)+"_alpha_"+str(alpha)+"_crissis.txt"
         s.append(readSequenceFile(path))
         
@@ -185,9 +207,12 @@ def compareSequences(t, l, a, ranges):
     P_cond = []
     H = []
     A = []
-    K = []
     q = mp.Queue()
+    i = 1
+    print "Calculating Entropies and Autocorrelations"
     for seq in s:
+	print i
+	i += 1
         p, alph = os.calcProbs(seq, 15, q)
         P.append(p)
         pcond = os.calcCondProbs(p, 15, alph)
@@ -196,43 +221,63 @@ def compareSequences(t, l, a, ranges):
         H.append(h)
         a = os.autocorrelation(seq, 200)
         A.append(a)
-        if seq is not s[0]:
-            k = os.calcKLDivergence(P[0], p, 10)
-            K.append(k)
-        
+
+    print "Calculating Divergences"
+    K = []
+    #D-Markov KLD:
+    p0 = P[0]
+    pd = P[1]
+    k = os.calcKLDivergence(p0, pd, 10)
+    if a:
+	rng = (0, len(alpharange))
+	K.append([k for i in rng])
+	knm = []
+	km = []
+	kc = []
+	for i in rng:
+	    knm.append(os.calcKLDivergence(p0, P[2+i], 10))
+	    km.append(os.calcKLDivergence(p0, P[3+i], 10))
+	    kc.append(os.calcKLDivergence(p0, P[4+i], 10))
+	K.append(knm)
+	K.append(km)
+	K.append(kc)
+    if l:
+	rng = (0, len(lrange))
+	K.append([k for i in rng])
+	knm = []
+	km = []
+	for i in rng:
+	    knm.append(os.calcKLDivergence(p0, P[2+i], 10))
+	    km.append(os.calcKLDivergence(p0, P[3+i], 10))
+	K.append(knm)
+	K.append(km)
+	kc = os.calcKLDivergence(p0, P[-1], 10)
+	K.append([kc for i in rng])
+    
+    print "Saving Entropies"
     path = "./Resultados/entropies_"+t+".txt"
     f = open(path, 'w')
+    i = 1
     for h in H:
+	print i
+	i += 1
         f.write(resultToString(h))
     f.close()
     
+    print "Saving Autocorrelations"
     path = "./Resultados/autocorrelations_"+t+".txt"
     f = open(path, 'w')
+    i = 1
     for a in A:
+	print i
+	i += 1
         f.write(resultToString(a))
     f.close()
-             
+    
+    print "Saving Divergences"
     path = "./Resultados/kldivergences_"+t+".txt" 
-    if l:
-        rng = ranges[0]
-    if a:
-        rng = ranges[1] 
-    KLD = []
-    k = K.pop(0)
-    KLD.append([k for i in rng])
-    k = K.pop()
-    KLD.append([k for i in rng])
-    count = 0
-    kaux = []
-    for k in K:
-        if count < len(rng):
-              kaux.append(k)
-              k += 1
-        else:
-            KLD.append(kaux)
-            k = 0
     f = open(path, 'w')
-    for kld in KLD:
+    for kld in K:
         f.write(resultToString(kld))
     f.close()
     
@@ -241,6 +286,7 @@ def compareSequences(t, l, a, ranges):
 def main(argv):
     t, g, s, l, a, c = readInput(argv)
     ranges = defineRanges(l, a)
+    print c
     if g:
         generateGraphs(t, ranges)
     if s:
@@ -257,7 +303,7 @@ def readInput(argv):
 	l = True
 	c = True
 	try:
-		opts, args = getopt.getopt(argv, "ht:g:s:l:a:c", ["type=", "graph=", "sequence=", "L=", "alpha=", "compare="])
+		opts, args = getopt.getopt(argv, "ht:g:s:l:a:c:", ["type=", "graph=", "sequence=", "L=", "alpha=", "compare="])
 	except getopt.GetoptError:
 		print 'test_generated_graph.py -t <type> -g <graph> -s <sequence> -l <L> -a <alpha> -c <compare>'
 		sys.exit(2)
@@ -287,7 +333,7 @@ def readInput(argv):
 			    a = True
 			else:
 			    a = False
-		elif opt in ("-c","--compare"):
+		elif opt in ("-c", "--compare"):
 		    	if arg == 'True':
 			    c = True
 			else:
