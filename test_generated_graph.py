@@ -1,6 +1,6 @@
 #!/usr/bin/env
 import sys, getopt
-import obtainstat as os
+import obtainstat as obst
 import probabilisticGraph as pg
 import multiprocessing as mp
 import partition as pt
@@ -8,6 +8,7 @@ import partitionset as ps
 import graphMinimization as gm
 import crissis as cr
 import dmarkov
+import os.path
 
 #Auxiliary functions:
 def generateAndSaveSequences(g, w, t, L, l, alpha, seqType):
@@ -123,14 +124,14 @@ def generateSequences(t, ranges):
         wsyn = "1111"
     elif t == "tri":
         wsyn = "00"
-        d = os.generate("tri", 10000000, [0.5, 0.8, 0.7])
+        d = obst.generate("tri", 10000000, [0.5, 0.8, 0.7])
         path = "./Resultados/sequence_trishift_original_10000000.txt"
         f = open(path, 'w')
         f.write(d)
         f.close()
     elif t == "even":
         wsyn = "0"
-        d = os.generate("even", 10000000, [0.99])
+        d = obst.generate("even", 10000000, [0.99])
         path = "./Resultados/sequence_evenshift_original_10000000.txt"
         f = open(path, 'w')
         f.write(d)
@@ -166,7 +167,7 @@ def generateSequences(t, ranges):
         generateAndSaveSequences(g, g.stateNamed(wsyn), t, L, 10000000, alpha, '_crissis')    
     return
     
-def compareSequences(t, l, a, ranges):
+def compareSequences(t, l, a, e, ac, k, ranges):
     print "Opening original sequence"
     if t == "henon":
         path = "../Sequencias/MH6.dat"
@@ -186,125 +187,148 @@ def compareSequences(t, l, a, ranges):
     #what will need to be processed again once this functions is ran again
     for alpha in alpharange:
         print "Alpha:"
-	print alpha
+	    print alpha
         for L in lrange:
-	    print "L:"
-	    print L
+	        print "L:"
+	        print L
             #No Moore:
-	    print "Opening No Moore Sequence"
+	        print "Opening No Moore Sequence"
             path = "./Resultados/sequence_"+t+"generated_L_"+str(L)+"_alpha_"+str(alpha)+"_NoMoore.txt"
             s.append(readSequenceFile(path))
             #With Moore:
-	    print "Opening sequence w/ Moore"
+	        print "Opening sequence w/ Moore"
             path = "./Resultados/sequence_"+t+"generated_L_"+str(L)+"_alpha_"+str(alpha)+".txt"
             s.append(readSequenceFile(path))
-	print "Opening CRiSSiS Sequence"
+	    print "Opening CRiSSiS Sequence"
         path = "./Resultados/sequence_"+t+"generated_L_"+str(L)+"_alpha_"+str(alpha)+"_crissis.txt"
         s.append(readSequenceFile(path))
         
-    #Once all sequences were obtained correctly, new loop to process them
-    P = []
-    P_cond = []
-    H = []
-    A = []
-    q = mp.Queue()
-    i = 1
-    print "Calculating Entropies and Autocorrelations"
-    for seq in s:
-	print i
-	i += 1
-        p, alph = os.calcProbs(seq, 15, q)
-        P.append(p)
-        pcond = os.calcCondProbs(p, 15, alph)
-        P_cond.append(pcond)
-        h = os.calcCondEntropy(p, pcond, 15)
-        H.append(h)
-        a = os.autocorrelation(seq, 200)
-        A.append(a)
-
-    print "Calculating Divergences"
-    K = []
-    #D-Markov KLD:
-    p0 = P[0]
-    pd = P[1]
-    k = os.calcKLDivergence(p0, pd, 10)
-    if a:
-	    rng = (0, len(alpharange))
-	    K.append([k for i in rng])
-	    knm = []
-	    km = []
-	    kc = []
-	    for i in rng:
-	        knm.append(os.calcKLDivergence(p0, P[2+i], 10))
-	        km.append(os.calcKLDivergence(p0, P[3+i], 10))
-	        kc.append(os.calcKLDivergence(p0, P[4+i], 10))
-	    K.append(knm)
-	    K.append(km)
-	    K.append(kc)
-    if l:
-	    rng = (0, len(lrange))
-	    K.append([k for i in rng])
-	    knm = []
-	    km = []
-	    for i in rng:
-	        knm.append(os.calcKLDivergence(p0, P[2+i], 10))
-	        km.append(os.calcKLDivergence(p0, P[3+i], 10))
-	    K.append(knm)
-	    K.append(km)
-	    kc = os.calcKLDivergence(p0, P[-1], 10)
-	    K.append([kc for i in rng])
-    
-    print "Saving Probabilities"
-    path = "./Resultados/probabilities_"+t+".txt"
-    f = open(path, 'w')
-    i = 1
-    for p in P:
-	print i
-	i += 1
-        f.write(resultToString(p))
-    f.close()
-    
-    print "Saving Conditional Probabilities"
-    path = "./Resultados/conditional_probabilities_"+t+".txt"
-    f = open(path, 'w')
-    i = 1
-    for pc in P_cond:
-	print i
-	i += 1
-        f.write(resultToString(pc))
-    f.close()
-    
-    print "Saving Entropies"
-    path = "./Resultados/entropies_"+t+".txt"
-    f = open(path, 'w')
-    i = 1
-    for h in H:
-	print i
-	i += 1
-        f.write(resultToString(h))
-    f.close()
-    
-    print "Saving Autocorrelations"
-    path = "./Resultados/autocorrelations_"+t+".txt"
-    f = open(path, 'w')
-    i = 1
-    for a in A:
-	print i
-	i += 1
-        f.write(resultToString(a))
-    f.close()
-    
-    print "Saving Divergences"
-    path = "./Resultados/kldivergences_"+t+".txt" 
-    f = open(path, 'w')
-    for kld in K:
-        f.write(resultToString(kld))
-    f.close()
+    print "Checking if available probabilities"
+    path = "Resultados/probabilities_"+t+".txt"
+    if os.path.isfile(path):
+        P = []
+        P_cond = []
+        f = open(path, 'r')
+        for l in f.readlines():
+            P.append(stringToResult(l))
+        f.close()
+        path = "Resultados/conditional_probabilities_"+t+".txt"
+        f = open(path, 'r')
+        for l in f.readlines():
+            P_cond(stringToResult(l))
+        f.close()        
+    else:        
+        #Once all sequences were obtained correctly, new loop to process them
+        P = []
+        Alph = []
+        q = mp.Queue()
+        P_cond = []
+        for seq in s:
+            p, alph = obst.calcProbs(seq, 15, q)
+            P.append(p)
+            Alph.append(alph)
+            pcond = obst.calcCondProbs(p, 15, alph)
+        print "Saving Probabilities"
+        path = "./Resultados/probabilities_"+t+".txt"
+        f = open(path, 'w')
+        i = 1
+        for p in P:
+	        print i
+	        i += 1
+            f.write(resultToString(p))
+        f.close()
+        print "Saving Conditional Probabilities"
+        path = "./Resultados/conditional_probabilities_"+t+".txt"
+        f = open(path, 'w')
+        i = 1
+        for pc in P_cond:
+	        print i
+	        i += 1
+            f.write(resultToString(pc))
+        f.close()
+            
+    if e:
+        H = []
+        print "Calculating Entropies"
+        i = 0
+        for p in P:
+            h = obst.calcCondEntropy(p, P_cond[i], 15)
+            i += 1
+            H.append(h)
+        print "Saving Entropies"
+        path = "./Resultados/entropies_"+t+".txt"
+        f = open(path, 'w')
+        i = 1
+        for h in H:
+	        print i
+	        i += 1
+            f.write(resultToString(h))
+        f.close()
+        
+    if ac:
+        A = []
+        for seq in s:
+            a = obst.autocorrelation(seq,200)
+            A.append(a)
+        print "Saving Autocorrelations"
+        path = "./Resultados/autocorrelations_"+t+".txt"
+        f = open(path, 'w')
+        i = 1
+        for a in A:
+	        print i
+	        i += 1
+            f.write(resultToString(a))
+        f.close()     
+         
+    if k:
+        print "Calculating Divergences"
+        K = []
+        #D-Markov KLD:
+        p0 = P[0]
+        pd = P[1]
+        k = obst.calcKLDivergence(p0, pd, 10)
+        if a:
+	        rng = (0, len(alpharange))
+	        K.append([k for i in rng])
+	        knm = []
+	        km = []
+	        kc = []
+	        j = 1
+	        for i in rng:
+	            print j
+	            j += 1
+	            knm.append(obst.calcKLDivergence(p0, P[2+i], 10))
+	            km.append(obst.calcKLDivergence(p0, P[3+i], 10))
+	            kc.append(obst.calcKLDivergence(p0, P[4+i], 10))
+	        K.append(knm)
+	        K.append(km)
+	        K.append(kc)
+        if l:
+	        rng = (0, len(lrange))
+	        K.append([k for i in rng])
+	        knm = []
+	        km = []
+	        j = 1
+	        for i in rng:
+	            print j
+	            j += 1
+	            knm.append(obst.calcKLDivergence(p0, P[2+i], 10))
+	            km.append(obst.calcKLDivergence(p0, P[3+i], 10))
+	        K.append(knm)
+	        K.append(km)
+	        kc = obst.calcKLDivergence(p0, P[-1], 10)
+	        K.append([kc for i in rng])    
+        print "Saving Divergences"
+        path = "./Resultados/kldivergences_"+t+".txt" 
+        f = open(path, 'w')
+        for kld in K:
+            f.write(resultToString(kld))
+        f.close()
     
     return
             
 def main(argv):
-    t, g, s, l, a, c = readInput(argv)
+    t, g, s, l, a, c, ac, e, k = readInput(argv)
     ranges = defineRanges(l, a)
     print c
     if g:
@@ -312,7 +336,7 @@ def main(argv):
     if s:
         generateSequences(t, ranges)
     if c:
-    	compareSequences(t, l, a, ranges)
+    	compareSequences(t, l, a, e, ac, k, ranges)
     return 0
 
 def readInput(argv):
@@ -322,14 +346,17 @@ def readInput(argv):
 	a = True
 	l = True
 	c = True
+	ac = True
+	e = True
+	k = True
 	try:
-		opts, args = getopt.getopt(argv, "ht:g:s:l:a:c:", ["type=", "graph=", "sequence=", "L=", "alpha=", "compare="])
+		opts, args = getopt.getopt(argv, "ht:g:s:l:a:c:i:e:k:", ["type=", "graph=", "sequence=", "L=", "alpha=", "compare=", "autocorrelation=", "entropy=", "kld="])
 	except getopt.GetoptError:
-		print 'test_generated_graph.py -t <type> -g <graph> -s <sequence> -l <L> -a <alpha> -c <compare>'
+		print 'test_generated_graph.py -t <type> -g <graph> -s <sequence> -l <L> -a <alpha> -c <compare> -i <autocorrelation> -e <entropy> -k <kld>'
 		sys.exit(2)
 	for opt, arg in opts:
 		if opt == "-h":
-			print 'test_generated_graph.py -t <type> -g <graph> -s <sequence> -l <L> -a <alpha> -c <compare>'
+			print 'test_generated_graph.py -t <type> -g <graph> -s <sequence> -l <L> -a <alpha> -c <compare> -i <autocorrelation> -e <entropy> -k <kld>'
 			sys.exit()
 		elif opt in ("-t", "--type"):
 			t = arg
@@ -354,11 +381,26 @@ def readInput(argv):
 			else:
 			    a = False
 		elif opt in ("-c", "--compare"):
-		    	if arg == 'True':
+		    if arg == 'True':
 			    c = True
 			else:
 			    c = False
-	return [t, g, s, l, a, c]
+		elif opt in ("-i", "--autocorrelation"):
+		    if arg == 'True':
+			    ac = True
+			else:
+			    ac = False
+		elif opt in ("-e", "--entropies"):
+		    if arg == 'True':
+			    e = True
+			else:
+			    e = False
+		elif opt in ("-k", "--kld"):
+		    if arg == 'True':
+			    k = True
+			else:
+			    k = False
+	return [t, g, s, l, a, c, ac, e, k]
 
 if __name__ == "__main__":
 	main(sys.argv[1:])
