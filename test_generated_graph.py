@@ -9,6 +9,7 @@ import graphMinimization as gm
 import crissis as cr
 import dmarkov
 import os.path
+import json
 
 #Auxiliary functions:
 def generateAndSaveSequences(g, w, t, L, l, alpha, seqType):
@@ -166,6 +167,126 @@ def generateSequences(t, ranges):
         g.parseGraphFile(path)
         generateAndSaveSequences(g, g.stateNamed(wsyn), t, L, 10000000, alpha, '_crissis')    
     return
+
+def computeProbabilities(t, s):
+    print "Checking if available probabilities"
+    path = "Resultados/probabilities_"+t+".json"
+    if os.path.isfile(path):
+        P = []
+        P_cond = []
+        f = open(path, 'r')
+        P = json.load(f)
+        f.close()
+        path = "Resultados/conditional_probabilities_"+t+".json"
+        f = open(path, 'r')
+        P_cond = json.load(f)
+        f.close()        
+    else:        
+        #Once all sequences were obtained correctly, new loop to process them
+        P = []
+        Alph = []
+        q = mp.Queue()
+        P_cond = []
+        for seq in s:
+            p, alph = obst.calcProbs(seq, 15, q)
+            P.append(p)
+            Alph.append(alph)
+            pcond = obst.calcCondProbs(p, 15, alph)
+        print "Saving Probabilities"
+        path = "./Resultados/probabilities_"+t+".json"
+        f = open(path, 'w')
+        json.dump(P, f)
+        f.close()
+        print "Saving Conditional Probabilities"
+        path = "./Resultados/conditional_probabilities_"+t+".json"
+        f = open(path, 'w')
+        json.dump(P_cond, f)
+        f.close()
+        
+    return [P, P_cond]
+    
+def computeEntropies(t, P, P_cond):
+    H = []
+    print "Calculating Entropies"
+    i = 0
+    for p in P:
+        h = obst.calcCondEntropy(p, P_cond[i], 15)
+        i += 1
+        H.append(h)
+    print "Saving Entropies"
+    path = "./Resultados/entropies_"+t+".txt"
+    f = open(path, 'w')
+    i = 1
+    for h in H:
+        print i
+	    i += 1
+        f.write(resultToString(h))
+    f.close()
+    return H  
+    
+def computeAutocorrelation(t, s): 
+    A = []
+    for seq in s:
+        a = obst.autocorrelation(seq,200)
+        A.append(a)
+    print "Saving Autocorrelations"
+    path = "./Resultados/autocorrelations_"+t+".txt"
+    f = open(path, 'w')
+    i = 1
+    for a in A:
+        print i
+        i += 1
+        f.write(resultToString(a))
+    f.close()
+    return A
+    
+def computeKLD(t, P, ranges):
+    print "Calculating Divergences"
+    K = []
+    lrange, alpharange = ranges
+    #D-Markov KLD:
+    p0 = P[0]
+    pd = P[1]
+    k = obst.calcKLDivergence(p0, pd, 10)
+    if a:
+        rng = (0, len(alpharange))
+        K.append([k for i in rng])
+        knm = []
+        km = []
+        kc = []
+        j = 1
+        for i in rng:
+            print j
+            j += 1
+            knm.append(obst.calcKLDivergence(p0, P[2+i], 10))
+            km.append(obst.calcKLDivergence(p0, P[3+i], 10))
+            kc.append(obst.calcKLDivergence(p0, P[4+i], 10))
+        K.append(knm)
+        K.append(km)
+        K.append(kc)
+    if l:
+        rng = (0, len(lrange))
+        K.append([k for i in rng])
+	    knm = []
+	    km = []
+	    j = 1
+	    for i in rng:
+	        print j
+	        j += 1
+	        knm.append(obst.calcKLDivergence(p0, P[2+i], 10))
+	        km.append(obst.calcKLDivergence(p0, P[3+i], 10))
+	    K.append(knm)
+	    K.append(km)
+	    kc = obst.calcKLDivergence(p0, P[-1], 10)
+	    K.append([kc for i in rng])
+    print "Saving Divergences"
+    path = "./Resultados/kldivergences_"+t+".txt" 
+    f = open(path, 'w')
+    for kld in K:
+        f.write(resultToString(kld))
+    f.close()
+    return K
+      
     
 def compareSequences(t, l, a, e, ac, k, ranges):
     print "Opening original sequence"
@@ -187,143 +308,32 @@ def compareSequences(t, l, a, e, ac, k, ranges):
     #what will need to be processed again once this functions is ran again
     for alpha in alpharange:
         print "Alpha:"
-	print alpha
+	    print alpha
         for L in lrange:
-	    print "L:"
-	    print L
+	        print "L:"
+	        print L
             #No Moore:
-	    print "Opening No Moore Sequence"
+	        print "Opening No Moore Sequence"
             path = "./Resultados/sequence_"+t+"generated_L_"+str(L)+"_alpha_"+str(alpha)+"_NoMoore.txt"
             s.append(readSequenceFile(path))
             #With Moore:
-	    print "Opening sequence w/ Moore"
+	        print "Opening sequence w/ Moore"
             path = "./Resultados/sequence_"+t+"generated_L_"+str(L)+"_alpha_"+str(alpha)+".txt"
             s.append(readSequenceFile(path))
 	    print "Opening CRiSSiS Sequence"
         path = "./Resultados/sequence_"+t+"generated_L_"+str(L)+"_alpha_"+str(alpha)+"_crissis.txt"
         s.append(readSequenceFile(path))
     
-    print "Checking if available probabilities"
-    path = "Resultados/probabilities_"+t+".txt"
-    if os.path.isfile(path):
-        P = []
-        P_cond = []
-        f = open(path, 'r')
-        for l in f.readlines():
-            P.append(stringToResult(l))
-        f.close()
-        path = "Resultados/conditional_probabilities_"+t+".txt"
-        f = open(path, 'r')
-        for l in f.readlines():
-            P_cond(stringToResult(l))
-        f.close()        
-    else:        
-        #Once all sequences were obtained correctly, new loop to process them
-        P = []
-        Alph = []
-        q = mp.Queue()
-        P_cond = []
-        for seq in s:
-            p, alph = obst.calcProbs(seq, 15, q)
-            P.append(p)
-            Alph.append(alph)
-            pcond = obst.calcCondProbs(p, 15, alph)
-        print "Saving Probabilities"
-        path = "./Resultados/probabilities_"+t+".txt"
-        f = open(path, 'w')
-        i = 1
-        for p in P:
-	    print i
-	    i += 1
-            f.write(resultToString(p))
-        f.close()
-        print "Saving Conditional Probabilities"
-        path = "./Resultados/conditional_probabilities_"+t+".txt"
-        f = open(path, 'w')
-        i = 1
-        for pc in P_cond:
-	    print i
-	    i += 1
-            f.write(resultToString(pc))
-        f.close()
+    P, P_cond = computeProbabilities(t, s)
             
     if e:
-        H = []
-        print "Calculating Entropies"
-        i = 0
-        for p in P:
-            h = obst.calcCondEntropy(p, P_cond[i], 15)
-            i += 1
-            H.append(h)
-        print "Saving Entropies"
-        path = "./Resultados/entropies_"+t+".txt"
-        f = open(path, 'w')
-        i = 1
-        for h in H:
-	    print i
-	    i += 1
-            f.write(resultToString(h))
-        f.close()
+        H = computeEntropies(t, P, P_cond)
         
-    if ac:
-        A = []
-        for seq in s:
-            a = obst.autocorrelation(seq,200)
-            A.append(a)
-        print "Saving Autocorrelations"
-        path = "./Resultados/autocorrelations_"+t+".txt"
-        f = open(path, 'w')
-        i = 1
-        for a in A:
-	    print i
-	    i += 1
-            f.write(resultToString(a))
-        f.close()     
-         
+    if ac:    
+        A = computeAutocorrelation(t, s)
+             
     if k:
-        print "Calculating Divergences"
-        K = []
-        #D-Markov KLD:
-        p0 = P[0]
-        pd = P[1]
-        k = obst.calcKLDivergence(p0, pd, 10)
-        if a:
-	    rng = (0, len(alpharange))
-	    K.append([k for i in rng])
-	    knm = []
-	    km = []
-	    kc = []
-	    j = 1
-	    for i in rng:
-	        print j
-	        j += 1
-	        knm.append(obst.calcKLDivergence(p0, P[2+i], 10))
-	        km.append(obst.calcKLDivergence(p0, P[3+i], 10))
-	        kc.append(obst.calcKLDivergence(p0, P[4+i], 10))
-	    K.append(knm)
-	    K.append(km)
-	    K.append(kc)
-        if l:
-	    rng = (0, len(lrange))
-	    K.append([k for i in rng])
-	    knm = []
-	    km = []
-	    j = 1
-	    for i in rng:
-	        print j
-	        j += 1
-	        knm.append(obst.calcKLDivergence(p0, P[2+i], 10))
-	        km.append(obst.calcKLDivergence(p0, P[3+i], 10))
-	    K.append(knm)
-	    K.append(km)
-	    kc = obst.calcKLDivergence(p0, P[-1], 10)
-	    K.append([kc for i in rng])    
-        print "Saving Divergences"
-        path = "./Resultados/kldivergences_"+t+".txt" 
-        f = open(path, 'w')
-        for kld in K:
-            f.write(resultToString(kld))
-        f.close()
+        K = computeKLD(t, P, ranges)
     
     return
             
