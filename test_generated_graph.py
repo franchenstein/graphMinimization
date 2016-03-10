@@ -249,7 +249,7 @@ def computeKLD(t, P, a, l, ranges):
     pd = P[1]
     k = obst.calcKLDivergence(p0, pd, 10)
     if a:
-        rng = (0, len(alpharange))
+        rng = range(0, len(alpharange))
         K.append([k for i in rng])
         knm = []
         km = []
@@ -265,7 +265,7 @@ def computeKLD(t, P, a, l, ranges):
         K.append(km)
         K.append(kc)
     if l:
-        rng = (0, len(lrange))
+        rng = range(0, len(lrange))
         K.append([k for i in rng])
         knm = []
         km = []
