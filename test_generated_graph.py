@@ -219,7 +219,7 @@ def computeEntropies(t, P, P_cond):
     i = 1
     for h in H:
         print i
-	    i += 1
+        i += 1
         f.write(resultToString(h))
     f.close()
     return H  
@@ -267,18 +267,18 @@ def computeKLD(t, P, a, l, ranges):
     if l:
         rng = (0, len(lrange))
         K.append([k for i in rng])
-	    knm = []
-	    km = []
-	    j = 1
-	    for i in rng:
-	        print j
-	        j += 1
-	        knm.append(obst.calcKLDivergence(p0, P[2+i], 10))
-	        km.append(obst.calcKLDivergence(p0, P[3+i], 10))
-	    K.append(knm)
-	    K.append(km)
-	    kc = obst.calcKLDivergence(p0, P[-1], 10)
-	    K.append([kc for i in rng])
+        knm = []
+        km = []
+        j = 1
+        for i in rng:
+            print j
+            j += 1
+            knm.append(obst.calcKLDivergence(p0, P[2+i], 10))
+            km.append(obst.calcKLDivergence(p0, P[3+i], 10))
+        K.append(knm)
+        K.append(km)
+        kc = obst.calcKLDivergence(p0, P[-1], 10)
+        K.append([kc for i in rng])
     print "Saving Divergences"
     path = "./Resultados/kldivergences_"+t+".txt" 
     f = open(path, 'w')
@@ -308,19 +308,19 @@ def compareSequences(t, l, a, e, ac, k, ranges):
     #what will need to be processed again once this functions is ran again
     for alpha in alpharange:
         print "Alpha:"
-	    print alpha
+        print alpha
         for L in lrange:
 	        print "L:"
 	        print L
-            #No Moore:
+	        #No Moore:
 	        print "Opening No Moore Sequence"
-            path = "./Resultados/sequence_"+t+"generated_L_"+str(L)+"_alpha_"+str(alpha)+"_NoMoore.txt"
-            s.append(readSequenceFile(path))
+	        path = "./Resultados/sequence_"+t+"generated_L_"+str(L)+"_alpha_"+str(alpha)+"_NoMoore.txt"
+	        s.append(readSequenceFile(path))
             #With Moore:
 	        print "Opening sequence w/ Moore"
-            path = "./Resultados/sequence_"+t+"generated_L_"+str(L)+"_alpha_"+str(alpha)+".txt"
-            s.append(readSequenceFile(path))
-	    print "Opening CRiSSiS Sequence"
+	        path = "./Resultados/sequence_"+t+"generated_L_"+str(L)+"_alpha_"+str(alpha)+".txt"
+	        s.append(readSequenceFile(path))
+        print "Opening CRiSSiS Sequence"
         path = "./Resultados/sequence_"+t+"generated_L_"+str(L)+"_alpha_"+str(alpha)+"_crissis.txt"
         s.append(readSequenceFile(path))
     
