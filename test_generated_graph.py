@@ -187,22 +187,22 @@ def compareSequences(t, l, a, e, ac, k, ranges):
     #what will need to be processed again once this functions is ran again
     for alpha in alpharange:
         print "Alpha:"
-	    print alpha
+	print alpha
         for L in lrange:
-	        print "L:"
-	        print L
+	    print "L:"
+	    print L
             #No Moore:
-	        print "Opening No Moore Sequence"
+	    print "Opening No Moore Sequence"
             path = "./Resultados/sequence_"+t+"generated_L_"+str(L)+"_alpha_"+str(alpha)+"_NoMoore.txt"
             s.append(readSequenceFile(path))
             #With Moore:
-	        print "Opening sequence w/ Moore"
+	    print "Opening sequence w/ Moore"
             path = "./Resultados/sequence_"+t+"generated_L_"+str(L)+"_alpha_"+str(alpha)+".txt"
             s.append(readSequenceFile(path))
 	    print "Opening CRiSSiS Sequence"
         path = "./Resultados/sequence_"+t+"generated_L_"+str(L)+"_alpha_"+str(alpha)+"_crissis.txt"
         s.append(readSequenceFile(path))
-        
+    
     print "Checking if available probabilities"
     path = "Resultados/probabilities_"+t+".txt"
     if os.path.isfile(path):
@@ -233,8 +233,8 @@ def compareSequences(t, l, a, e, ac, k, ranges):
         f = open(path, 'w')
         i = 1
         for p in P:
-	        print i
-	        i += 1
+	    print i
+	    i += 1
             f.write(resultToString(p))
         f.close()
         print "Saving Conditional Probabilities"
@@ -242,8 +242,8 @@ def compareSequences(t, l, a, e, ac, k, ranges):
         f = open(path, 'w')
         i = 1
         for pc in P_cond:
-	        print i
-	        i += 1
+	    print i
+	    i += 1
             f.write(resultToString(pc))
         f.close()
             
@@ -260,8 +260,8 @@ def compareSequences(t, l, a, e, ac, k, ranges):
         f = open(path, 'w')
         i = 1
         for h in H:
-	        print i
-	        i += 1
+	    print i
+	    i += 1
             f.write(resultToString(h))
         f.close()
         
@@ -275,8 +275,8 @@ def compareSequences(t, l, a, e, ac, k, ranges):
         f = open(path, 'w')
         i = 1
         for a in A:
-	        print i
-	        i += 1
+	    print i
+	    i += 1
             f.write(resultToString(a))
         f.close()     
          
@@ -288,36 +288,36 @@ def compareSequences(t, l, a, e, ac, k, ranges):
         pd = P[1]
         k = obst.calcKLDivergence(p0, pd, 10)
         if a:
-	        rng = (0, len(alpharange))
-	        K.append([k for i in rng])
-	        knm = []
-	        km = []
-	        kc = []
-	        j = 1
-	        for i in rng:
-	            print j
-	            j += 1
-	            knm.append(obst.calcKLDivergence(p0, P[2+i], 10))
-	            km.append(obst.calcKLDivergence(p0, P[3+i], 10))
-	            kc.append(obst.calcKLDivergence(p0, P[4+i], 10))
-	        K.append(knm)
-	        K.append(km)
-	        K.append(kc)
+	    rng = (0, len(alpharange))
+	    K.append([k for i in rng])
+	    knm = []
+	    km = []
+	    kc = []
+	    j = 1
+	    for i in rng:
+	        print j
+	        j += 1
+	        knm.append(obst.calcKLDivergence(p0, P[2+i], 10))
+	        km.append(obst.calcKLDivergence(p0, P[3+i], 10))
+	        kc.append(obst.calcKLDivergence(p0, P[4+i], 10))
+	    K.append(knm)
+	    K.append(km)
+	    K.append(kc)
         if l:
-	        rng = (0, len(lrange))
-	        K.append([k for i in rng])
-	        knm = []
-	        km = []
-	        j = 1
-	        for i in rng:
-	            print j
-	            j += 1
-	            knm.append(obst.calcKLDivergence(p0, P[2+i], 10))
-	            km.append(obst.calcKLDivergence(p0, P[3+i], 10))
-	        K.append(knm)
-	        K.append(km)
-	        kc = obst.calcKLDivergence(p0, P[-1], 10)
-	        K.append([kc for i in rng])    
+	    rng = (0, len(lrange))
+	    K.append([k for i in rng])
+	    knm = []
+	    km = []
+	    j = 1
+	    for i in rng:
+	        print j
+	        j += 1
+	        knm.append(obst.calcKLDivergence(p0, P[2+i], 10))
+	        km.append(obst.calcKLDivergence(p0, P[3+i], 10))
+	    K.append(knm)
+	    K.append(km)
+	    kc = obst.calcKLDivergence(p0, P[-1], 10)
+	    K.append([kc for i in rng])    
         print "Saving Divergences"
         path = "./Resultados/kldivergences_"+t+".txt" 
         f = open(path, 'w')
@@ -381,22 +381,22 @@ def readInput(argv):
 			else:
 			    a = False
 		elif opt in ("-c", "--compare"):
-		    if arg == 'True':
+		    	if arg == 'True':
 			    c = True
 			else:
 			    c = False
 		elif opt in ("-i", "--autocorrelation"):
-		    if arg == 'True':
+		    	if arg == 'True':
 			    ac = True
 			else:
 			    ac = False
 		elif opt in ("-e", "--entropies"):
-		    if arg == 'True':
+		    	if arg == 'True':
 			    e = True
 			else:
 			    e = False
 		elif opt in ("-k", "--kld"):
-		    if arg == 'True':
+		    	if arg == 'True':
 			    k = True
 			else:
 			    k = False
