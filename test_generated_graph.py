@@ -67,16 +67,25 @@ def openGraph(t, g):
     return [g, w]
     
 #Main functions:
-def generateGraphs(t, ranges):
+def generateGraphs(t, d, ranges):
     g = pg.ProbabilisticGraph([],[])
     print "Opening original tree\n"
     g, w = openGraph(t, g) 
     
-    #D-Markov:    
-    print "Creating D-Markov Graph\n"
-    dm = dmarkov.DMarkov(g, 9)
-    path = "./Resultados/graph_"+t+"_dmarkov_9.txt"
-    dm.saveGraphFile(path)  
+    #D-Markov:
+    if d:
+        for i in range(4, 11):
+            print i
+            print "Creating D-Markov Graph\n"
+            dm = dmarkov.DMarkov(g, i)
+            path = "./Resultados/graph_"+t+"_dmarkov_"+i".txt"
+            dm.saveGraphFile(path)
+            g, w = openGraph(t, g)
+    else:    
+        print "Creating D-Markov Graph\n"
+        dm = dmarkov.DMarkov(g, 9)
+        path = "./Resultados/graph_"+t+"_dmarkov_9.txt"
+        dm.saveGraphFile(path)  
         
     lrange, alpharange = ranges
     
@@ -119,7 +128,7 @@ def generateGraphs(t, ranges):
         c.saveGraphFile(path)
     return
     
-def generateSequences(t, ranges):
+def generateSequences(t, d, ranges):
     g = pg.ProbabilisticGraph([], [])
     if t == "henon":
         wsyn = "1111"
@@ -141,10 +150,17 @@ def generateSequences(t, ranges):
     lrange, alpharange = ranges
     
     print "Generating D-Markov Sequence"
-    #D-Markov:    
-    path = "./Resultados/graph_"+t+"_dmarkov_9.txt"
-    g.parseGraphFile(path)
-    generateAndSaveSequences(g, g.states[0], t, 'X', 10000000, 'X', '_dmarkov9')
+    #D-Markov:  
+    if d:
+        for i in range(4, 11):
+        path = "./Resultados/graph_"+t+"_dmarkov_"+i".txt"
+        g.parseGraphFile(path)
+        dmarkov = '_dmarkov' + str(i)
+        generateAndSaveSequences(g, g.states[0], t, 'X', 10000000, 'X', dmarkov)
+    else:  
+        path = "./Resultados/graph_"+t+"_dmarkov_9.txt"
+        g.parseGraphFile(path)
+        generateAndSaveSequences(g, g.states[0], t, 'X', 10000000, 'X', '_dmarkov9')
     
     for alpha in alpharange:
 	print "Alpha:"
@@ -245,12 +261,21 @@ def computeKLD(t, P, a, l, ranges):
     K = []
     lrange, alpharange = ranges
     #D-Markov KLD:
-    p0 = P[0]
-    pd = P[1]
-    k = obst.calcKLDivergence(p0, pd, 10)
+    c = 1
+    k = []
+    if d:
+        p0 = P[0]
+        pd = P[c]
+        c += 1
+        k.append(obst.calcKLDivergence(p0, pd, 10))
+    else:
+        p0 = P[0]
+        pd = P[1]
+        k.append(obst.calcKLDivergence(p0, pd, 10))
     if a:
         rng = range(0, len(alpharange))
-        K.append([k for i in rng])
+        for x in k:
+            K.append([x for i in rng])
         knm = []
         km = []
         kc = []
@@ -258,9 +283,9 @@ def computeKLD(t, P, a, l, ranges):
         for i in rng:
             print j
             j += 1
-            knm.append(obst.calcKLDivergence(p0, P[2+i], 10))
-            km.append(obst.calcKLDivergence(p0, P[3+i], 10))
-            kc.append(obst.calcKLDivergence(p0, P[4+i], 10))
+            knm.append(obst.calcKLDivergence(p0, P[1+c+i], 10))
+            km.append(obst.calcKLDivergence(p0, P[2+c+i], 10))
+            kc.append(obst.calcKLDivergence(p0, P[3+c+i], 10))
         K.append(knm)
         K.append(km)
         K.append(kc)
@@ -273,8 +298,8 @@ def computeKLD(t, P, a, l, ranges):
         for i in rng:
             print j
             j += 1
-            knm.append(obst.calcKLDivergence(p0, P[2+i], 10))
-            km.append(obst.calcKLDivergence(p0, P[3+i], 10))
+            knm.append(obst.calcKLDivergence(p0, P[1+c+i], 10))
+            km.append(obst.calcKLDivergence(p0, P[2+c+i], 10))
         K.append(knm)
         K.append(km)
         kc = obst.calcKLDivergence(p0, P[-1], 10)
@@ -288,7 +313,7 @@ def computeKLD(t, P, a, l, ranges):
     return K
       
     
-def compareSequences(t, l, a, e, ac, k, ranges):
+def compareSequences(t, l, a, e, ac, k, d, ranges):
     print "Opening original sequence"
     if t == "henon":
         path = "../Sequencias/MH6.dat"
@@ -298,9 +323,16 @@ def compareSequences(t, l, a, e, ac, k, ranges):
         path = "./Resultados/sequence_trishift_original_10000000.txt"
     s = []
     s.append(readSequenceFile(path))
-    print "Opening D-Markov Sequence"
-    path = "./Resultados/sequence_"+t+"generated_L_X_alpha_X_dmarkov9.txt"
-    s.append(readSequenceFile(path))
+    if d:
+        for i in range(4,11):
+            print i
+            print "Opening D-Markov Sequence"
+            path = "./Resultados/sequence_"+t+"generated_L_X_alpha_X_dmarkov"+str(i)+".txt"
+            s.append(readSequenceFile(path))
+    else:
+        print "Opening D-Markov Sequence"
+        path = "./Resultados/sequence_"+t+"generated_L_X_alpha_X_dmarkov9.txt"
+        s.append(readSequenceFile(path))
     
     lrange, alpharange = ranges
     
@@ -338,15 +370,15 @@ def compareSequences(t, l, a, e, ac, k, ranges):
     return
             
 def main(argv):
-    t, g, s, l, a, c, ac, e, k = readInput(argv)
+    t, g, s, l, a, c, ac, e, k, d = readInput(argv)
     ranges = defineRanges(l, a)
     print c
     if g:
-        generateGraphs(t, ranges)
+        generateGraphs(t, d, ranges)
     if s:
-        generateSequences(t, ranges)
+        generateSequences(t, d, ranges)
     if c:
-    	compareSequences(t, l, a, e, ac, k, ranges)
+    	compareSequences(t, l, a, e, ac, k, d, ranges)
     return 0
 
 def readInput(argv):
@@ -359,14 +391,15 @@ def readInput(argv):
 	ac = True
 	e = True
 	k = True
+	d = True
 	try:
-		opts, args = getopt.getopt(argv, "ht:g:s:l:a:c:i:e:k:", ["type=", "graph=", "sequence=", "L=", "alpha=", "compare=", "autocorrelation=", "entropy=", "kld="])
+		opts, args = getopt.getopt(argv, "ht:g:s:l:a:c:i:e:k:d:", ["type=", "graph=", "sequence=", "L=", "alpha=", "compare=", "autocorrelation=", "entropy=", "kld=", "dmarkov="])
 	except getopt.GetoptError:
-		print 'test_generated_graph.py -t <type> -g <graph> -s <sequence> -l <L> -a <alpha> -c <compare> -i <autocorrelation> -e <entropy> -k <kld>'
+		print 'test_generated_graph.py -t <type> -g <graph> -s <sequence> -l <L> -a <alpha> -c <compare> -i <autocorrelation> -e <entropy> -k <kld> -d <dmarkov>'
 		sys.exit(2)
 	for opt, arg in opts:
 		if opt == "-h":
-			print 'test_generated_graph.py -t <type> -g <graph> -s <sequence> -l <L> -a <alpha> -c <compare> -i <autocorrelation> -e <entropy> -k <kld>'
+			print 'test_generated_graph.py -t <type> -g <graph> -s <sequence> -l <L> -a <alpha> -c <compare> -i <autocorrelation> -e <entropy> -k <kld> -d <dmarkov>'
 			sys.exit()
 		elif opt in ("-t", "--type"):
 			t = arg
@@ -410,7 +443,12 @@ def readInput(argv):
 			    k = True
 			else:
 			    k = False
-	return [t, g, s, l, a, c, ac, e, k]
+		elif opt in ("-d", "--dmarkov"):
+		    	if arg == 'True':
+			    d = True
+			else:
+			    d = False
+	return [t, g, s, l, a, c, ac, e, k, d]
 
 if __name__ == "__main__":
 	main(sys.argv[1:])
