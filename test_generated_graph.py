@@ -64,6 +64,9 @@ def openGraph(t, g):
     elif t == "tri":
 	g.parseGraphFile("./Resultados/graph_trishift_10000000_L15.txt")
 	w = g.stateNamed("00")
+    elif t == "10dbq1":
+        g.parseGraphFile("./Resultados/graph_10dB_0.005_q1_L12.txt")
+        w = g.stateNamed("11111")
     return [g, w]
     
 #Main functions:
@@ -146,6 +149,8 @@ def generateSequences(t, d, ranges):
         f = open(path, 'w')
         f.write(d)
         f.close()
+    elif t == "10dbq1":
+        wsyn = "11111"
     
     lrange, alpharange = ranges
     
@@ -323,6 +328,8 @@ def compareSequences(t, l, a, e, ac, k, d, ranges):
         path = "./Resultados/sequence_evenshift_original_10000000.txt"
     elif t == "tri":
         path = "./Resultados/sequence_trishift_original_10000000.txt"
+    elif t == "10dbq1":
+        path = "../Sequencias/seq10db_q1.txt"
     s = []
     s.append(readSequenceFile(path))
     if d:
