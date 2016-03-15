@@ -256,7 +256,7 @@ def computeAutocorrelation(t, s):
     f.close()
     return A
     
-def computeKLD(t, P, a, l, ranges):
+def computeKLD(t, P, a, l, d, ranges):
     print "Calculating Divergences"
     K = []
     lrange, alpharange = ranges
@@ -365,7 +365,7 @@ def compareSequences(t, l, a, e, ac, k, d, ranges):
         A = computeAutocorrelation(t, s)
              
     if k:
-        K = computeKLD(t, P, a, l, ranges)
+        K = computeKLD(t, P, a, l, d, ranges)
     
     return
             
