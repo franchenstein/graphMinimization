@@ -208,6 +208,7 @@ def computeProbabilities(t, s):
             P.append(p)
             Alph.append(alph)
             pcond = obst.calcCondProbs(p, 15, alph)
+            P_cond.append(pcond)
         print "Saving Probabilities"
         path = "./Resultados/probabilities_"+t+".json"
         f = open(path, 'w')
