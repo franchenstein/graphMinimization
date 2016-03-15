@@ -264,10 +264,11 @@ def computeKLD(t, P, a, l, d, ranges):
     c = 1
     k = []
     if d:
-        p0 = P[0]
-        pd = P[c]
-        c += 1
-        k.append(obst.calcKLDivergence(p0, pd, 10))
+        for j in range(1,8):
+            p0 = P[0]
+            pd = P[j]
+            c += 1
+            k.append(obst.calcKLDivergence(p0, pd, 10))
     else:
         p0 = P[0]
         pd = P[1]
