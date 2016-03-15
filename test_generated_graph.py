@@ -78,7 +78,7 @@ def generateGraphs(t, d, ranges):
             print i
             print "Creating D-Markov Graph\n"
             dm = dmarkov.DMarkov(g, i)
-            path = "./Resultados/graph_"+t+"_dmarkov_"+i".txt"
+            path = "./Resultados/graph_"+t+"_dmarkov_"+str(i)+".txt"
             dm.saveGraphFile(path)
             g, w = openGraph(t, g)
     else:    
@@ -153,10 +153,10 @@ def generateSequences(t, d, ranges):
     #D-Markov:  
     if d:
         for i in range(4, 11):
-        path = "./Resultados/graph_"+t+"_dmarkov_"+i".txt"
-        g.parseGraphFile(path)
-        dmarkov = '_dmarkov' + str(i)
-        generateAndSaveSequences(g, g.states[0], t, 'X', 10000000, 'X', dmarkov)
+            path = "./Resultados/graph_"+t+"_dmarkov_"+str(i)+".txt"
+            g.parseGraphFile(path)
+            dmarkov = '_dmarkov' + str(i)
+            generateAndSaveSequences(g, g.states[0], t, 'X', 10000000, 'X', dmarkov)
     else:  
         path = "./Resultados/graph_"+t+"_dmarkov_9.txt"
         g.parseGraphFile(path)
