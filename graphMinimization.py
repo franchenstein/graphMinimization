@@ -111,20 +111,21 @@ def moore(P, g):
                 validSplits = [split for split in splits if split.name]
                 #Append the current letter's partitions:
                 pa.append(validSplits)
-                        
+            
             Pa = pa[0]
             for q in pa[1:]:
                 cp = coarsestPartition(Pa, q)
                 #Pa = noRedundancy(cp, Pa)
                 Pa = cp
             P_alphabet.append(Pa)         
-        
+
         P_b = P_alphabet[0]
+        print P_b
         for pb in P_alphabet[1:]:
             cp = coarsestPartition(P_b, pb)
             #P_b = noRedundancy(cp, P_b)
             P_b = cp
-                                   
+        
         newPartitions = coarsestPartition(P.partitions, P_b)
         newNames = [tuple(p.name) for p in newPartitions]
         oldNames = [tuple(p.name) for p in P_old.partitions]

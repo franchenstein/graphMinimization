@@ -65,7 +65,7 @@ def openGraph(t, g):
 	g.parseGraphFile("./Resultados/graph_trishift_10000000_L15.txt")
 	w = g.stateNamed("00")
     elif t == "10dbq1":
-        g.parseGraphFile("./Resultados/graph_10dB_0.005_q1_L12.txt")
+        g.parseGraphFile("./Resultados/graph_10dB_0.005_q=1_L12.txt")
         w = g.stateNamed("11111")
     return [g, w]
     
@@ -120,6 +120,7 @@ def generateGraphs(t, d, ranges):
             i = g.removeUnreachableStates()
             shortStates = [x for x in i.states if len(x.name) < L]
             i = pg.ProbabilisticGraph(shortStates, i.alphabet)
+            print len(PS.partitions)
             ip = gm.moore(PS, i)
             j = ip.recoverGraph(i)
             path = "./Resultados/graph_"+t+"generated_L_"+str(L)+"_alpha_"+str(alpha)+".txt"
