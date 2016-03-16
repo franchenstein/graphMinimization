@@ -120,7 +120,6 @@ def generateGraphs(t, d, ranges):
             i = g.removeUnreachableStates()
             shortStates = [x for x in i.states if len(x.name) < L]
             i = pg.ProbabilisticGraph(shortStates, i.alphabet)
-            print len(PS.partitions)
             ip = gm.moore(PS, i)
             j = ip.recoverGraph(i)
             path = "./Resultados/graph_"+t+"generated_L_"+str(L)+"_alpha_"+str(alpha)+".txt"
@@ -299,7 +298,8 @@ def computeKLD(t, P, a, l, d, ranges):
         K.append(kc)
     if l:
         rng = range(0, len(lrange))
-        K.append([k for i in rng])
+        for x in k:
+            K.append([x for i in rng])
         knm = []
         km = []
         j = 1
