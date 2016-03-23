@@ -4,6 +4,8 @@ import state
 import graph
 import partition
 import partitionset
+import probabilisticGraph as pg
+import probabilisticState as ps
 
 """ 
 This script will take a graph described in an user-defined filepath and create
@@ -120,7 +122,6 @@ def moore(P, g):
             P_alphabet.append(Pa)         
 
         P_b = P_alphabet[0]
-        print P_b
         for pb in P_alphabet[1:]:
             cp = coarsestPartition(P_b, pb)
             #P_b = noRedundancy(cp, P_b)
@@ -161,6 +162,44 @@ def recoverEdgesForPartition(g, ps):
         newStates.append(state.State(p.name, newEdges))
     return newStates
     
+def isSuffix(w,n):
+    if len(w) > len(n):
+        return False
+    else:
+        nSuffix = n[-len(w):]
+        return w == nSuffix
+        
+def minimizeFromSynchWords(g, synchlist):
+    s = [x for x in g.states if x.name in synchlist]
+    states = []
+    while True:
+       if not s:
+            break
+       else:
+            aux = s.pop()
+            nexts = [x[1] for x in aux.outedges]
+            i = 0
+            oedges = []
+            for n in nexts:
+                e = n
+                for w in synchlist:
+                    if isSuffix(w,n):
+                        e = w
+                        break
+                edge = (aux.outedges[i][0], e, aux.outedges[i][2])
+                oedges.append(edge)
+                i += 1
+            newState = ps.ProbabilisticState(aux.name, oedges)
+            states.append(newState)
+            statesNames = [x.name for x in states]
+            newNexts = [x[1] for x in newState.outedges if x[1] not in statesNames]
+            for n in newNexts:
+                v = g.stateNamed(n)
+                if v:
+                    s.append(g.stateNamed(n))
+    h = pg.ProbabilisticGraph(states, g.alphabet)
+    return h               
+                            
 def readInput(argv):
     inFile = ""
     outFile = ""
