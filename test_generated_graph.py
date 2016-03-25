@@ -66,7 +66,7 @@ def openGraph(t, g):
 	w = g.stateNamed("00")
     elif t == "10dbq1":
         g.parseGraphFile("./Resultados/graph_10dB_0.005_q=1_L12.txt")
-        w = [g.stateNamed("11111"), g.stateNamed("01111"), g.stateNamed("010001"), 
+        w = [g.stateNamed("1111"), g.stateNamed("11111"), g.stateNamed("01111"), g.stateNamed("010001"), 
              g.stateNamed("1100011"), g.stateNamed("1000101"), g.stateNamed("0000000"),
              g.stateNamed("1000001"), g.stateNamed("00011000")]
     elif t == "quaternary":
@@ -102,10 +102,10 @@ def generateGraphs(t, d, ranges):
     for alpha in alpharange:
     	print "alpha:"
     	print alpha
-        for L in lrange:
-	    print "L:"
-	    print L
-	    g, w = openGraph(t, g)
+    	for L in lrange:
+    	    print "L:"
+    	    print L
+            g, w = openGraph(t, g)
             Q = g.createInitialPartition(w[0], L, alpha, "chi-squared")
             P = []
             for q in Q:
@@ -116,13 +116,13 @@ def generateGraphs(t, d, ranges):
                 P.append(p1)
             PS = ps.PartitionSet(P)
             #No Moore sequence and graph:
-	    print "Generating NoMoore graphs\n"
+            print "Generating NoMoore graphs\n"
             h = PS.recoverGraph(g)
             #path = "./Resultados/graph_"+t+"generated_L_"+str(L)+"_alpha_"+str(alpha)+"_NoMoore.txt"
             #h.saveGraphFile(path)
             
             #With Moore sequence and graph:
- 	    print "Generating graphs after Moore\n"
+            print "Generating graphs after Moore\n"
             i = g.removeUnreachableStates()
             shortStates = [x for x in i.states if len(x.name) < L]
             i = pg.ProbabilisticGraph(shortStates, i.alphabet)
@@ -131,26 +131,68 @@ def generateGraphs(t, d, ranges):
             path = "./Resultados/graph_"+t+"generated_L_"+str(L)+"_alpha_"+str(alpha)+".txt"
             j.saveGraphFile(path)
             
+            #New Expansion Using Moore:
+            g, w = openGraph(t, g)
+            Q = g.createInitialPartition2(w[0], L, alpha, "chi-squared")
+            P = []
+            for q in Q:
+                p = q.pop(0)
+                p1 = pt.Partition(p)
+                while q:
+                    p1.addToPartition(q.pop(0))
+                P.append(p1)
+            PS = ps.PartitionSet(P)
+            #No Moore sequence and graph:
+            print "Generating NoMoore graphs\n"
+            h = PS.recoverGraph(g)
+            #path = "./Resultados/graph_"+t+"generated_L_"+str(L)+"_alpha_"+str(alpha)+"_NoMoore.txt"
+            #h.saveGraphFile(path)
+            
+            #With Moore sequence and graph:
+            print "Generating graphs after Moore\n"
+            i = g.removeUnreachableStates()
+            shortStates = [x for x in i.states if len(x.name) < L]
+            i = pg.ProbabilisticGraph(shortStates, i.alphabet)
+            ip = gm.moore(PS, i)
+            j = ip.recoverGraph(i)
+            path = "./Resultados/graph_"+t+"generated_L_"+str(L)+"_alpha_"+str(alpha)+"_exp2.txt"
+            j.saveGraphFile(path)
+            
             #New algorithm, ending with D-Markov:
             g, w = openGraph(t, g)
             dm = dmarkov.DMarkov(g, L)
-            z = [x for x in g.states if len(x.name) >= L]
+            z = [x for x in g.states if x.nameLength() < L]
             z.extend(dm.states)
             gd = pg.ProbabilisticGraph(z, g.alphabet)
-            k = gm.minimizeFromSynchWords(gd, w)
+            synchlist = [x.name for x in w]
+            k = gm.minimizeFromSynchWords(gd, synchlist)
             path = "./Resultados/graph_"+t+"generated_L_"+str(L)+"newDMarkov.txt"
             k.saveGraphFile(path)
-            #New algorithm, ending with D-Markov:
+            #New algorithm, ending ell:
             g, w = openGraph(t, g)
-            z = [x for x in g.states if len(x.name) == L]
+            z = [x for x in g.states if x.nameLength() == L]
             for s in z:
                 g.expandLastLevel(s, alpha, 'chi-squared')
-            l = gm.minimizeFromSynchWords(g, w)
+            g.states = [x for x in g.states if x.nameLength() <= L]
+            synchlist = [x.name for x in w]
+            l = gm.minimizeFromSynchWords(g, synchlist)
+            m = l.removeUnreachableStates()
             path = "./Resultados/graph_"+t+"generated_L_"+str(L)+"newLastLevel.txt"
-            l.saveGraphFile(path)
+            m.saveGraphFile(path)
+            #New algorithm, ending ell2:
+            g, w = openGraph(t, g)
+            z = [x for x in g.states if x.nameLength() == L]
+            for s in z:
+                g.expandLastLevel2(s, alpha, 'chi-squared')
+            g.states = [x for x in g.states if x.nameLength() <= L]
+            synchlist = [x.name for x in w]
+            l = gm.minimizeFromSynchWords(g, synchlist)
+            m = l.removeUnreachableStates()
+            path = "./Resultados/graph_"+t+"generated_L_"+str(L)+"newLastLevel2.txt"
+            m.saveGraphFile(path)
         #CRiSSiS:
 	print "Generating CRiSSiS graph\n"
-        c = cr.crissis(w, g, alpha, "chi-squared")
+        c = cr.crissis(w[0], g, alpha, "chi-squared")
         path = "./Resultados/graph_"+t+"generated_L_"+str(L)+"_alpha_"+str(alpha)+"_crissis.txt"
         c.saveGraphFile(path)
     return
@@ -197,29 +239,36 @@ def generateSequences(t, d, ranges):
 	print "Alpha:"
 	print alpha
         for L in lrange:
-	    print "L:"
-	    print L
+            print "L:"
+            print L
             #No Moore:
 	    #print "Generating NoMoore Sequence"
         #    path = "./Resultados/graph_"+t+"generated_L_"+str(L)+"_alpha_"+str(alpha)+"_NoMoore.txt"
         #    g.parseGraphFile(path)
         #    generateAndSaveSequences(g, g.stateNamed(wsyn), t, L, 10000000, alpha, '_NoMoore')
             #With Moore:
-	    print "Generating Sequence W/ Moore"
+            print "Generating Sequence W/ Moore"
             path = "./Resultados/graph_"+t+"generated_L_"+str(L)+"_alpha_"+str(alpha)+".txt"
             g.parseGraphFile(path)
-            generateAndSaveSequences(g, g.stateNamed(wsyn), t, L, 10000000, alpha, '')
-        print "Generating Sequence W/ New Algorithm"
+            generateAndSaveSequences(g, g.states[0], t, L, 10000000, alpha, '')
+            print "Generating Sequence W/ Moore new expansions"
+            path = "./Resultados/graph_"+t+"generated_L_"+str(L)+"_alpha_"+str(alpha)+"_exp2.txt"
+            g.parseGraphFile(path)
+            generateAndSaveSequences(g, g.states[0], t, L, 10000000, alpha, 'exp2')
+            print "Generating Sequence W/ New Algorithm"
             path = "./Resultados/graph_"+t+"generated_L_"+str(L)+"newDMarkov.txt"
             g.parseGraphFile(path)
-            generateAndSaveSequences(g, g.stateNamed(wsyn), t, L, 10000000, alpha, 'newDMarkov')
+            generateAndSaveSequences(g, g.states[0], t, L, 10000000, alpha, 'newDMarkov')
             path = "./Resultados/graph_"+t+"generated_L_"+str(L)+"newLastLevel.txt"
             g.parseGraphFile(path)
-            generateAndSaveSequences(g, g.stateNamed(wsyn), t, L, 10000000, alpha, 'newLastLevel')
+            generateAndSaveSequences(g, g.states[0], t, L, 10000000, alpha, 'newLastLevel')
+            path = "./Resultados/graph_"+t+"generated_L_"+str(L)+"newLastLevel2.txt"
+            g.parseGraphFile(path)
+            generateAndSaveSequences(g, g.states[0], t, L, 10000000, alpha, 'newLastLevel2')
 	print "Generating CRiSSiS Sequence"
         path = "./Resultados/graph_"+t+"generated_L_"+str(L)+"_alpha_"+str(alpha)+"_crissis.txt"
         g.parseGraphFile(path)
-        generateAndSaveSequences(g, g.stateNamed(wsyn), t, L, 10000000, alpha, '_crissis')    
+        generateAndSaveSequences(g, g.states[0], t, L, 10000000, alpha, '_crissis')    
     return
 
 def computeProbabilities(t, s):
@@ -397,10 +446,14 @@ def compareSequences(t, l, a, e, ac, k, d, ranges):
 	        print "Opening sequence w/ Moore"
 	        path = "./Resultados/sequence_"+t+"generated_L_"+str(L)+"_alpha_"+str(alpha)+".txt"
 	        s.append(readSequenceFile(path))
-	        print "Opening sequence w/ New Algorithm"
-	        path = "./Resultados/sequence_"+t+"generated_L_"+str(L)+"_newDMarkov.txt"
+	        path = "./Resultados/sequence_"+t+"generated_L_"+str(L)+"_alpha_"+str(alpha)+"exp2.txt"
 	        s.append(readSequenceFile(path))
-	        path = "./Resultados/sequence_"+t+"generated_L_"+str(L)+"_newLastLevel.txt"
+	        print "Opening sequence w/ New Algorithm"
+	        path = "./Resultados/sequence_"+t+"generated_L_"+str(L)+"_alpha_"+str(alpha)+"newDMarkov.txt"
+	        s.append(readSequenceFile(path))
+	        path = "./Resultados/sequence_"+t+"generated_L_"+str(L)+"_alpha_"+str(alpha)+"newLastLevel.txt"
+	        s.append(readSequenceFile(path))
+	        path = "./Resultados/sequence_"+t+"generated_L_"+str(L)+"_alpha_"+str(alpha)+"newLastLevel2.txt"
 	        s.append(readSequenceFile(path))
         print "Opening CRiSSiS Sequence"
         path = "./Resultados/sequence_"+t+"generated_L_"+str(L)+"_alpha_"+str(alpha)+"_crissis.txt"
