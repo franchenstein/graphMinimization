@@ -202,8 +202,8 @@ def autocorrelation(x, upTo):
     for i in range(0,upTo):
         acc = 0
         for j in range(0, len(x) - i):
-            acc += x[i + j]*x[j]
+            acc += float(x[i + j])*float(x[j])
         A.append(acc)
     m = max(A)
-    B = [float(x)/float(m) for x in A]
+    B = [float(x)/(2*float(m)) for x in A]
     return B                                

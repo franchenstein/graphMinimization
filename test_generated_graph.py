@@ -292,9 +292,9 @@ def calcEntropies(t, alg, L, expn):
     json.dump(H, f)
     f.close()     
     
-def calcKLD(t, alg, L, expn):
+def calcKLD(t, alg, L, expn = ''):
     K = []  
-    orig_path = '../Resultados/probabilities_' + t + '_original.json'
+    orig_path = '../Resultados/probabilities_' + t + '_original_.json'
     f = open(orig_path, 'r')
     Porig = json.load(f)
     f.close()
@@ -329,7 +329,7 @@ def calcAutoCorr(t, alg, L, orig, L_ini, L_end, alpha_ini, alpha_end, expn):
 def plotEntropies(t, dmark, mk1, mk2, L_ini, L_fin, alpha_ini, alpha_fin, D_ini, D_fin):
     labels = []
     H = []
-    Ho_path = '../Resultados/entropies_'+t+'_original.json'
+    Ho_path = '../Resultados/entropies_'+t+'_original_.json'
     g = pg.ProbabilisticGraph([], [])
     f = open(Ho_path, 'r')
     original = json.load(f)
@@ -441,7 +441,7 @@ def plotKLD(t, dmark, mk1, mk2, L_ini, L_fin, alpha_ini, alpha_fin, D_ini, D_fin
                     if opts[k]:
                         expns.append(k) 
                         kpath = '../Resultados/kldivergences_'+t+'_'+alg+'_'+k+'.json'
-                        kpaths.append(hpath)
+                        kpaths.append(kpath)
                         #Labels:
                         ranges.append(range(L_ini, L_fin + 2, 2))
                         lb = "Original Sequence vs. " + alg + " " + k + "expansion"
