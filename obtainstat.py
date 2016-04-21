@@ -206,4 +206,23 @@ def autocorrelation(x, upTo):
         A.append(acc)
     m = max(A)
     B = [float(x)/(2*float(m)) for x in A]
-    return B                                
+    return B    
+    
+def l1Metric(P1, P2, N):
+    acc = 0
+    for i in range(0,N):
+        for key in P1[i].keys():
+            if key in P2[i].keys():
+                v2 = P2[i][key]
+            else:
+                v2 = 0
+            m = abs(P1[i][key] - v2)/(2**i)
+            acc += m
+    return acc   
+    
+def kldMetric(P1, P2, N):
+    acc = 0
+    for i in range(0, N):
+        k = calcKLDivergence(P1, P2, i)
+        acc += k/(2**i)
+    return acc                         

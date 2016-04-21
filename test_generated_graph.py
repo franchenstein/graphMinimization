@@ -217,7 +217,7 @@ def openSequences(t, alg, orig, L_ini, L_end, alpha_ini, alpha_end, expn):
         elif t == "10dbq1":
             path = "../../Sequencias/seq10db_q1.txt"
         elif t == "quaternary":
-            path = "../../Sequencia/quaternary_seq.txt"
+            path = "../../Sequencias/quaternary_seq.txt"
         s.append(readSequenceFile(path))
             
     else:
@@ -313,6 +313,48 @@ def calcKLD(t, alg, L, expn = ''):
     json.dump(K, f)
     f.close() 
     
+def calc_l1_metric(t, alg, N, expn = ''):
+    L1 = []  
+    orig_path = '../Resultados/probabilities_' + t + '_original_.json'
+    f = open(orig_path, 'r')
+    Porig = json.load(f)
+    f.close()
+    p_path = '../Resultados/probabilities_' + t + '_' + alg + '_' + expn +'.json'
+    f = open(p_path, 'r')
+    P = json.load(f)
+    f.close()
+    
+    p0 = Porig[0]
+                
+    for p in P:
+        l1 = obst.l1Metric(p0, p, N-1)
+        L1.append(l1)
+    l_path = '../Resultados/l1metric_'+t+'_'+alg+'_' + expn +'.json'
+    f = open(l_path, 'w')
+    json.dump(L1, f)
+    f.close()
+
+def calc_kld_metric(t, alg, N, expn = ''):
+    KM = []  
+    orig_path = '../Resultados/probabilities_' + t + '_original_.json'
+    f = open(orig_path, 'r')
+    Porig = json.load(f)
+    f.close()
+    p_path = '../Resultados/probabilities_' + t + '_' + alg + '_' + expn +'.json'
+    f = open(p_path, 'r')
+    P = json.load(f)
+    f.close()
+    
+    p0 = Porig[0]
+                
+    for p in P:
+        km = obst.l1Metric(p0, p, N-1)
+        KM.append(km)
+    km_path = '../Resultados/kldmetric_'+t+'_'+alg+'_' + expn +'.json'
+    f = open(km_path, 'w')
+    json.dump(KM, f)
+    f.close()
+    
 def calcAutoCorr(t, alg, L, orig, L_ini, L_end, alpha_ini, alpha_end, expn):
     s, dum, mud = openSequences(t, alg, orig, L_ini, L_end, alpha_ini, alpha_end, expn)
     A = []
@@ -328,6 +370,7 @@ def calcAutoCorr(t, alg, L, orig, L_ini, L_end, alpha_ini, alpha_end, expn):
     
 def plotEntropies(t, dmark, mk1, mk2, L_ini, L_fin, alpha_ini, alpha_fin, D_ini, D_fin):
     labels = []
+    line = ['']
     H = []
     Ho_path = '../Resultados/entropies_'+t+'_original_.json'
     g = pg.ProbabilisticGraph([], [])
@@ -358,6 +401,7 @@ def plotEntropies(t, dmark, mk1, mk2, L_ini, L_fin, alpha_ini, alpha_fin, D_ini,
                 l = len(g.states)
                 lb = str(d) + '-Markov, ' + str(l) + ' states'
                 labels.append(lb)
+                line.append('')
         else:
             #Path:
             if alg == 'mk1':
@@ -387,7 +431,11 @@ def plotEntropies(t, dmark, mk1, mk2, L_ini, L_fin, alpha_ini, alpha_fin, D_ini,
                         g.parseGraphFile(graph_path)
                         l = len(g.states)
                         lb = alg + ", L = " + str(L) + ", alpha = " + str(alpha) + ", " + expn + " expansion, " + str(l) + " states"
-                        labels.append(lb)                    
+                        labels.append(lb)
+                        if alg == 'mk1':
+                            line.append('--')
+                        else:
+                            line.append('o')                    
            
         for hpath in hpaths:     
             f = open(hpath, 'r')
@@ -403,14 +451,102 @@ def plotEntropies(t, dmark, mk1, mk2, L_ini, L_fin, alpha_ini, alpha_fin, D_ini,
         if i == 0:
             plt.plot(x, h, 'k', linewidth = 3, label = labels[i])
         else:
-            plt.plot(x, h, label = labels[i])
+            plt.plot(x, h, line[i], label = labels[i])               
         i+=1
     
     legend = plt.legend(loc='upper right', shadow=False, fontsize='medium')
     plt.show()  
-
-def plotKLD(t, dmark, mk1, mk2, L_ini, L_fin, alpha_ini, alpha_fin, D_ini, D_fin):
+    
+def plotEntropiesByNoStates(t, dmark, mk1, mk2, L_ini, L_fin, alpha_ini, alpha_fin, D_ini, D_fin, final):
+    H = []
     labels = []
+    Ho_path = '../Resultados/entropies_'+t+'_original_.json'
+    g = pg.ProbabilisticGraph([], [])
+    f = open(Ho_path, 'r')
+    original = json.load(f)
+    for h in original:
+        Hbase = h[final]
+    f.close()
+    algs = []
+    expn = []
+    if dmark['Enable'] == True:
+        algs.append('dmark')
+    if mk1['Enable'] == True:
+        algs.append('mk1')
+    if mk2['Enable'] == True:
+        algs.append('mk2')
+    xranges = []
+    for alg in algs:
+        hpaths = []
+        if alg == 'dmark':
+            #Path:
+            hpath = '../Resultados/entropies_'+t+'_'+alg+'_.json'
+            hpaths.append(hpath)
+            x =[]
+            for d in range(D_ini, D_fin + 1):
+                path = '../Resultados/graph_'+t+'_dmarkov_'+str(d)+'.txt'
+                g.parseGraphFile(path)
+                l = len(g.states)
+                x.append(l)
+            #Labels:
+            labels.append('D-Markov')
+            xranges.append(x)
+        else:
+            #Path:
+            if alg == 'mk1':
+                opts = mk1
+            else:
+                opts = mk2
+            expns = []
+            for k in opts.keys():
+                if k != 'Enable':
+                    if opts[k]:
+                        expns.append(k) 
+                        hpath = '../Resultados/entropies_'+t+'_'+alg+'_'+k+'.json'
+                        hpaths.append(hpath)
+            #Labels:
+            Lrange = range(L_ini, L_fin + 2, 2)
+            if alpha_ini == alpha_fin:
+                alpharange = [alpha_ini]
+            else:
+                alpharange = np.arange(alpha_ini, alpha_fin + 0.05, 0.05)
+            g = pg.ProbabilisticGraph([], [])
+            if alpha_fin == 0.99:
+                np.append(alpharange, 0.99)
+            for expn in expns:
+                x = []
+                for alpha in alpharange:
+                    for L in Lrange:
+                        graph_path = '../Resultados/graph_'+t+'_generated_L_'+str(L)+'_alpha_'+str(alpha)+'_'+alg+'_exp_'+str(expn)+'.txt'
+                        g.parseGraphFile(graph_path)
+                        l = len(g.states)
+                        x.append(l)
+                lb = alg + ", " + expn
+                labels.append(lb)
+                xranges.append(x)                   
+           
+        for hpath in hpaths:     
+            f = open(hpath, 'r')
+            entrops = json.load(f)
+            h = [z[final] for z in entrops]
+            H.append(h)
+            f.close()
+            
+     
+    i = 0     
+    print len(H)
+    print len(xranges)     
+    for h in H:
+        plt.semilogx(xranges[i], h, marker = 'o', label = labels[i])               
+        i+=1
+    
+    plt.axhline(y = Hbase, color = 'k', linewidth = 3, label = 'Original Sequence Baseline')
+    legend = plt.legend(loc='upper right', shadow=False, fontsize='medium')
+    plt.show()  
+
+def plotKLD(t, dmark, mk1, mk2, L_ini, L_fin, alpha_ini, alpha_fin, D_ini, D_fin, byNoStates):
+    labels = []
+    g = pg.ProbabilisticGraph([],[])
     K = []
     algs = []
     expn = []
@@ -427,7 +563,16 @@ def plotKLD(t, dmark, mk1, mk2, L_ini, L_fin, alpha_ini, alpha_fin, D_ini, D_fin
             #Path:
             kpath = '../Resultados/kldivergences_'+t+'_'+alg+'_.json'
             kpaths.append(kpath)
-            ranges.append(range(D_ini, D_fin + 1))
+            if byNoStates:            
+                x = []
+                for d in range(D_ini, D_fin + 1):
+                    path = '../Resultados/graph_'+t+'_dmarkov_'+str(d)+'.txt'
+                    g.parseGraphFile(path)
+                    l = len(g.states)
+                    x.append(l)
+                ranges.append(x)
+            else:
+                ranges.append(range(D_ini, D_fin + 1))
             labels.append("Original Sequence vs. D-Markov")
         else:
             #Path:
@@ -443,7 +588,26 @@ def plotKLD(t, dmark, mk1, mk2, L_ini, L_fin, alpha_ini, alpha_fin, D_ini, D_fin
                         kpath = '../Resultados/kldivergences_'+t+'_'+alg+'_'+k+'.json'
                         kpaths.append(kpath)
                         #Labels:
-                        ranges.append(range(L_ini, L_fin + 2, 2))
+                        if byNoStates:
+                            Lrange = range(L_ini, L_fin + 2, 2)
+                            if alpha_ini == alpha_fin:
+                                alpharange = [alpha_ini]
+                            else:
+                                alpharange = np.arange(alpha_ini, alpha_fin + 0.05, 0.05)
+                            g = pg.ProbabilisticGraph([], [])
+                            if alpha_fin == 0.99:
+                                np.append(alpharange, 0.99)
+                            for expn in expns:
+                                x =[]
+                                for alpha in alpharange:
+                                    for L in Lrange:
+                                        graph_path = '../Resultados/graph_'+t+'_generated_L_'+str(L)+'_alpha_'+str(alpha)+'_'+alg+'_exp_'+str(expn)+'.txt'
+                                        g.parseGraphFile(graph_path)
+                                        l = len(g.states)
+                                        x.append(l)
+                                ranges.append(x)
+                        else:
+                            ranges.append(range(L_ini, L_fin + 2, 2))
                         lb = "Original Sequence vs. " + alg + " " + k + "expansion"
                         labels.append(lb)                 
            
@@ -455,15 +619,179 @@ def plotKLD(t, dmark, mk1, mk2, L_ini, L_fin, alpha_ini, alpha_fin, D_ini, D_fin
             
     i = 0       
     for k in K:
-        plt.plot(ranges[i], k, label = labels[i])
+        plt.semilogx(ranges[i], k, marker = 'o', label = labels[i])
+        i += 1
+    
+    legend = plt.legend(loc='upper right', shadow=False, fontsize='medium')
+    plt.show()
+
+def plotL1Metric(t, dmark, mk1, mk2, L_ini, L_fin, alpha_ini, alpha_fin, D_ini, D_fin, byNoStates):
+    labels = []
+    g = pg.ProbabilisticGraph([],[])
+    K = []
+    algs = []
+    expn = []
+    ranges = []
+    if dmark['Enable'] == True:
+        algs.append('dmark')
+    if mk1['Enable'] == True:
+        algs.append('mk1')
+    if mk2['Enable'] == True:
+        algs.append('mk2')
+    for alg in algs:
+        kpaths = []
+        if alg == 'dmark':
+            #Path:
+            kpath = '../Resultados/l1metric_'+t+'_'+alg+'_.json'
+            kpaths.append(kpath)
+            if byNoStates:            
+                x = []
+                for d in range(D_ini, D_fin + 1):
+                    path = '../Resultados/graph_'+t+'_dmarkov_'+str(d)+'.txt'
+                    g.parseGraphFile(path)
+                    l = len(g.states)
+                    x.append(l)
+                ranges.append(x)
+            else:
+                ranges.append(range(D_ini, D_fin + 1))
+            labels.append("Original Sequence vs. D-Markov")
+        else:
+            #Path:
+            if alg == 'mk1':
+                opts = mk1
+            else:
+                opts = mk2
+            expns = []
+            for k in opts.keys():
+                if k != 'Enable':
+                    if opts[k]:
+                        expns.append(k) 
+                        kpath = '../Resultados/l1metric_'+t+'_'+alg+'_'+k+'.json'
+                        kpaths.append(kpath)
+                        #Labels:
+                        if byNoStates:
+                            Lrange = range(L_ini, L_fin + 2, 2)
+                            if alpha_ini == alpha_fin:
+                                alpharange = [alpha_ini]
+                            else:
+                                alpharange = np.arange(alpha_ini, alpha_fin + 0.05, 0.05)
+                            g = pg.ProbabilisticGraph([], [])
+                            if alpha_fin == 0.99:
+                                np.append(alpharange, 0.99)
+                            for expn in expns:
+                                x =[]
+                                for alpha in alpharange:
+                                    for L in Lrange:
+                                        graph_path = '../Resultados/graph_'+t+'_generated_L_'+str(L)+'_alpha_'+str(alpha)+'_'+alg+'_exp_'+str(expn)+'.txt'
+                                        g.parseGraphFile(graph_path)
+                                        l = len(g.states)
+                                        x.append(l)
+                                ranges.append(x)
+                        else:
+                            ranges.append(range(L_ini, L_fin + 2, 2))
+                        lb = "Original Sequence vs. " + alg + " " + k + "expansion"
+                        labels.append(lb)                 
+           
+        for kpath in kpaths:     
+            f = open(kpath, 'r')
+            divs = json.load(f)
+            K.append(divs)
+            f.close()
+            
+    i = 0       
+    for k in K:
+        plt.semilogx(ranges[i], k, marker = 'o', label = labels[i])
         i += 1
     
     legend = plt.legend(loc='upper right', shadow=False, fontsize='medium')
     plt.show()
     
+def plotKLDMetric(t, dmark, mk1, mk2, L_ini, L_fin, alpha_ini, alpha_fin, D_ini, D_fin, byNoStates):
+    labels = []
+    g = pg.ProbabilisticGraph([],[])
+    K = []
+    algs = []
+    expn = []
+    ranges = []
+    if dmark['Enable'] == True:
+        algs.append('dmark')
+    if mk1['Enable'] == True:
+        algs.append('mk1')
+    if mk2['Enable'] == True:
+        algs.append('mk2')
+    for alg in algs:
+        kpaths = []
+        if alg == 'dmark':
+            #Path:
+            kpath = '../Resultados/kldmetric_'+t+'_'+alg+'_.json'
+            kpaths.append(kpath)
+            if byNoStates:            
+                x = []
+                for d in range(D_ini, D_fin + 1):
+                    path = '../Resultados/graph_'+t+'_dmarkov_'+str(d)+'.txt'
+                    g.parseGraphFile(path)
+                    l = len(g.states)
+                    x.append(l)
+                ranges.append(x)
+            else:
+                ranges.append(range(D_ini, D_fin + 1))
+            labels.append("Original Sequence vs. D-Markov")
+        else:
+            #Path:
+            if alg == 'mk1':
+                opts = mk1
+            else:
+                opts = mk2
+            expns = []
+            for k in opts.keys():
+                if k != 'Enable':
+                    if opts[k]:
+                        expns.append(k) 
+                        kpath = '../Resultados/kldmetric_'+t+'_'+alg+'_'+k+'.json'
+                        kpaths.append(kpath)
+                        #Labels:
+                        if byNoStates:
+                            Lrange = range(L_ini, L_fin + 2, 2)
+                            if alpha_ini == alpha_fin:
+                                alpharange = [alpha_ini]
+                            else:
+                                alpharange = np.arange(alpha_ini, alpha_fin + 0.05, 0.05)
+                            g = pg.ProbabilisticGraph([], [])
+                            if alpha_fin == 0.99:
+                                np.append(alpharange, 0.99)
+                            for expn in expns:
+                                x =[]
+                                for alpha in alpharange:
+                                    for L in Lrange:
+                                        graph_path = '../Resultados/graph_'+t+'_generated_L_'+str(L)+'_alpha_'+str(alpha)+'_'+alg+'_exp_'+str(expn)+'.txt'
+                                        g.parseGraphFile(graph_path)
+                                        l = len(g.states)
+                                        x.append(l)
+                                ranges.append(x)
+                        else:
+                            ranges.append(range(L_ini, L_fin + 2, 2))
+                        lb = "Original Sequence vs. " + alg + " " + k + "expansion"
+                        labels.append(lb)                 
+           
+        for kpath in kpaths:     
+            f = open(kpath, 'r')
+            divs = json.load(f)
+            K.append(divs)
+            f.close()
+            
+    i = 0       
+    for k in K:
+        plt.semilogx(ranges[i], k, marker = 'o', label = labels[i])
+        i += 1
+    
+    legend = plt.legend(loc='upper right', shadow=False, fontsize='medium')
+    plt.show()    
+
+    
 def plotAutocorr(t, dmark, mk1, mk2, L_ini, L_fin, alpha_ini, alpha_fin, D_ini, D_fin):
     labels = []
     A = []
+    lines = ['']
     Ao_path = '../Resultados/autocorrelations_'+t+'_orig_.json'
     g = pg.ProbabilisticGraph([], [])
     f = open(Ao_path, 'r')
@@ -493,6 +821,7 @@ def plotAutocorr(t, dmark, mk1, mk2, L_ini, L_fin, alpha_ini, alpha_fin, D_ini, 
                 l = len(g.states)
                 lb = str(d) + '-Markov, ' + str(l) + ' states'
                 labels.append(lb)
+                lines.append('')
         else:
             #Path:
             if alg == 'mk1':
@@ -522,7 +851,11 @@ def plotAutocorr(t, dmark, mk1, mk2, L_ini, L_fin, alpha_ini, alpha_fin, D_ini, 
                         g.parseGraphFile(graph_path)
                         l = len(g.states)
                         lb = alg + ", L = " + str(L) + ", alpha = " + str(alpha) + ", " + expn + " expansion, " + str(l) + " states"
-                        labels.append(lb)                    
+                        labels.append(lb)   
+                        if alg == 'mk1':
+                            lines.append('--')
+                        else:
+                            lines.append('o')                   
            
         for apath in apaths:     
             f = open(apath, 'r')
@@ -538,7 +871,7 @@ def plotAutocorr(t, dmark, mk1, mk2, L_ini, L_fin, alpha_ini, alpha_fin, D_ini, 
         if i == 0:
             plt.plot(x, a[1:], 'k', linewidth = 3, label = labels[i])
         else:
-            plt.plot(x, a[1:], label = labels[i])
+            plt.plot(x, a[1:], lines[i], label = labels[i])
         i += 1
     
     legend = plt.legend(loc='upper right', shadow=False, fontsize='medium')

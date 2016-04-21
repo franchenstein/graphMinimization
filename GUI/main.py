@@ -155,7 +155,7 @@ class ExampleApp(QtGui.QMainWindow, generatr.Ui_Generatr):
         self.L['multi'] = not self.L['multi'] 
        
     def toggleMultiAlpha(self):
-        self.alpha['multi'] = not self.type['multi'] 
+        self.alpha['multi'] = not self.alpha['multi'] 
         
     def generateGraphs(self):
         self.bar_gengraph.setValue(0)
@@ -226,6 +226,8 @@ class ExampleApp(QtGui.QMainWindow, generatr.Ui_Generatr):
         e = self.check_entropy.checkState()
         a = self.check_autocorr.checkState()
         k = self.check_kld.checkState()
+        l1 = self.check_l1metric.checkState()
+        km = self.check_kldmetric.checkState()
         if e:
             Le = int(self.line_entropy.text())
         else:
@@ -234,6 +236,10 @@ class ExampleApp(QtGui.QMainWindow, generatr.Ui_Generatr):
             La = int(self.line_autocorr.text())
         if k:
             Lk = int(self.line_kld.text())
+        if l1:
+            Ll1 = int(self.line_l1metric.text())
+        if km:
+            Lkm = int(self.line_kldmetric.text())
         for t in types:
             if e or k:
                 tgg.calcProbs(t, True, 'original', Le, expn = '')
@@ -298,6 +304,40 @@ class ExampleApp(QtGui.QMainWindow, generatr.Ui_Generatr):
                         tgg.calcKLD(t, 'mk2', Lk, 'new') 
                     if mk2['dmark']:
                         tgg.calcKLD(t, 'mk2', Lk, 'dmark') 
+            if l1: 
+                if dmark['Enable']:
+                    tgg.calc_l1_metric(t, 'dmark', Ll1, '') 
+                if mk1['Enable']:
+                    if mk1['old']:
+                        tgg.calc_l1_metric(t, 'mk1', Ll1, 'old') 
+                    if mk1['new']:
+                        tgg.calc_l1_metric(t, 'mk1', Ll1, 'new') 
+                    if mk1['dmark']:
+                        tgg.calc_l1_metric(t, 'mk1', Ll1, 'dmark') 
+                if mk2['Enable']:
+                    if mk2['old']:
+                        tgg.calc_l1_metric(t, 'mk2', Ll1, 'old') 
+                    if mk2['new']:
+                        tgg.calc_l1_metric(t, 'mk2', Ll1, 'new') 
+                    if mk2['dmark']:
+                        tgg.calc_l1_metric(t, 'mk2', Ll1, 'dmark')
+            if km: 
+                if dmark['Enable']:
+                    tgg.calc_kld_metric(t, 'dmark', Lkm, '') 
+                if mk1['Enable']:
+                    if mk1['old']:
+                        tgg.calc_kld_metric(t, 'mk1', Lkm, 'old') 
+                    if mk1['new']:
+                        tgg.calc_kld_metric(t, 'mk1', Lkm, 'new') 
+                    if mk1['dmark']:
+                        tgg.calc_kld_metric(t, 'mk1', Lkm, 'dmark') 
+                if mk2['Enable']:
+                    if mk2['old']:
+                        tgg.calc_kld_metric(t, 'mk2', Lkm, 'old') 
+                    if mk2['new']:
+                        tgg.calc_kld_metric(t, 'mk2', Lkm, 'new') 
+                    if mk2['dmark']:
+                        tgg.calc_kld_metric(t, 'mk2', Lkm, 'dmark')
             self.bar_an_seq.setValue(self.bar_an_seq.value() + 15*barMaxPerIteration)
                     
             if a:
@@ -324,13 +364,26 @@ class ExampleApp(QtGui.QMainWindow, generatr.Ui_Generatr):
     def plotGraphs(self):
         types, dmark, mk1, mk2, L_ini, L_fin, alpha_ini, alpha_fin = self.readConfigs()
         e = self.plot_entropy.checkState()
+        eByNoStates = self.plot_entropy_bynostates.checkState()
         a = self.plot_autocorr.checkState()
         k = self.plot_kld.checkState()      
+        kByNoStates = self.plot_kld_bynostates.checkState()
+        l1 = self.plot_l1metric.checkState()
+        l1ByNoStates = self.plot_l1metric_bynostate.checkState()
+        km = self.plot_kldmetric.checkState()
+        kmByNoStates = self.plot_kldmetric_bynostates.checkState()
         for t in types:
             if e:
-                tgg.plotEntropies(t, dmark, mk1, mk2, L_ini, L_fin, alpha_ini, alpha_fin, dmark['ini'], dmark['end'])
+                if eByNoStates:
+                    tgg.plotEntropiesByNoStates(t, dmark, mk1, mk2, L_ini, L_fin, alpha_ini, alpha_fin, dmark['ini'], dmark['end'], 14)
+                else:
+                    tgg.plotEntropies(t, dmark, mk1, mk2, L_ini, L_fin, alpha_ini, alpha_fin, dmark['ini'], dmark['end'])
             if k:
-                tgg.plotKLD(t, dmark, mk1, mk2, L_ini, L_fin, alpha_ini, alpha_fin, dmark['ini'], dmark['end'])
+                tgg.plotKLD(t, dmark, mk1, mk2, L_ini, L_fin, alpha_ini, alpha_fin, dmark['ini'], dmark['end'], kByNoStates)
+            if l1:
+                tgg.plotL1Metric(t, dmark, mk1, mk2, L_ini, L_fin, alpha_ini, alpha_fin, dmark['ini'], dmark['end'], l1ByNoStates)
+            if km:
+                tgg.plotKLDMetric(t, dmark, mk1, mk2, L_ini, L_fin, alpha_ini, alpha_fin, dmark['ini'], dmark['end'], kmByNoStates)
             if a:
                 tgg.plotAutocorr(t, dmark, mk1, mk2, L_ini, L_fin, alpha_ini, alpha_fin, dmark['ini'], dmark['end'])
     
