@@ -14,6 +14,7 @@ class PartitionSet:
                 
     def recoverGraph(self, g):
         S = [g.stateNamed(p.name[0]) for p in self.partitions]
+        S = [x for x in S if x != None]
         states = []
         for s in S:
             oe = []

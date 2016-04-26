@@ -97,11 +97,14 @@ def initialPartition(g):
     P = partitionset.PartitionSet(partitions)
     return P            
     
-def moore(P, g):
+def moore(P, g, nIter = -1):
     #Initial partition based on outgoing edges:
     #P = initialPartition(g)   
     #The loop will end when no new partitions are acquired:
+    iterCount = 0
+    cnt = 0
     while True:
+        print cnt
         P_old = P #Stores the current partition before the loop
         P_alphabet = []  
         for a in g.alphabet:
@@ -130,7 +133,10 @@ def moore(P, g):
         newPartitions = coarsestPartition(P.partitions, P_b)
         newNames = [tuple(p.name) for p in newPartitions]
         oldNames = [tuple(p.name) for p in P_old.partitions]
-        if set(newNames) == set(oldNames):
+        cnt += 1
+        if nIter > 0:
+            iterCount += 1
+        if (set(newNames) == set(oldNames)) or (iterCount == nIter):
             break
         else:
             P.partitions = newPartitions           

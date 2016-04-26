@@ -30,6 +30,9 @@ class ExampleApp(QtGui.QMainWindow, generatr.Ui_Generatr):
         self.mk1['old'] = False
         self.mk1['new'] = False
         self.mk1['dmark'] = False
+        self.mk1['moore'] = False
+        self.mk1['ini'] = 0
+        self.mk1['end'] = 0
         #Mk2 Configs:
         self.mk2 = {}
         self.mk2['Enable'] = False
@@ -63,6 +66,7 @@ class ExampleApp(QtGui.QMainWindow, generatr.Ui_Generatr):
         self.check_mk1_old.clicked.connect(self.toggleMk1Old)
         self.check_mk1_new.clicked.connect(self.toggleMk1New)
         self.check_mk1_dmark.clicked.connect(self.toggleMk1DMark)
+        self.check_multi_moore.clicked.connect(self.toggleMultiMoore)
         self.check_mk2.clicked.connect(self.toggleMk2)
         self.check_mk2_old.clicked.connect(self.toggleMk2Old)
         self.check_mk2_new.clicked.connect(self.toggleMk2New)
@@ -90,6 +94,9 @@ class ExampleApp(QtGui.QMainWindow, generatr.Ui_Generatr):
                 self.alpha['fin'] = float(self.line_alpha_fin.text())
             else:
                 self.alpha['single'] = float(self.line_single_alpha.text())
+            if self.mk1['moore']:
+                self.mk1['ini'] = int(self.line_moore_ini.text())
+                self.mk1['end'] = int(self.line_moore_fin.text())
         configs = {}
         configs['type'] = self.type
         configs['dmark'] = self.dmark
@@ -137,7 +144,10 @@ class ExampleApp(QtGui.QMainWindow, generatr.Ui_Generatr):
         self.mk1['new'] = not self.mk1['new']  
         
     def toggleMk1DMark(self):
-        self.mk1['dmark'] = not self.mk1['dmark']  
+        self.mk1['dmark'] = not self.mk1['dmark']   
+        
+    def toggleMultiMoore(self):
+        self.mk1['moore'] = not self.mk1['moore'] 
        
     def toggleMk2(self):
         self.mk2['Enable'] = not self.mk2['Enable'] 
@@ -166,12 +176,17 @@ class ExampleApp(QtGui.QMainWindow, generatr.Ui_Generatr):
                 tgg.genDMarkovGraphs(t, dmark['ini'], dmark['end'])
             self.bar_gengraph.setValue(self.bar_gengraph.value() + 10*barMaxPerIteration)
             if mk1['Enable']:
-                if mk1['old']:
-                    tgg.genMk1Graphs(t, L_ini, L_fin, alpha_ini, alpha_fin, 'old') 
-                if mk1['new']:
-                    tgg.genMk1Graphs(t, L_ini, L_fin, alpha_ini, alpha_fin, 'new')
-                if mk1['dmark']:
-                    tgg.genMk1Graphs(t, L_ini, L_fin, alpha_ini, alpha_fin, 'dmark')            
+                if mk1['moore']:
+                    mrange = range(mk1['ini'], mk1['end'] + 1)
+                else:
+                    mrange = [-1]
+                for m in mrange:
+                    if mk1['old']:
+                        tgg.genMk1Graphs(t, L_ini, L_fin, alpha_ini, alpha_fin, 'old', m) 
+                    if mk1['new']:
+                        tgg.genMk1Graphs(t, L_ini, L_fin, alpha_ini, alpha_fin, 'new', m)
+                    if mk1['dmark']:
+                        tgg.genMk1Graphs(t, L_ini, L_fin, alpha_ini, alpha_fin, 'dmark', m)            
             self.bar_gengraph.setValue(self.bar_gengraph.value() + 45*barMaxPerIteration)
             if mk2['Enable']:
                 if mk2['old']:
@@ -197,15 +212,20 @@ class ExampleApp(QtGui.QMainWindow, generatr.Ui_Generatr):
                 tgg.genSequences(t, False, 'dmark', l, dmark['ini'], dmark['end']) 
             self.bar_genseq.setValue(self.bar_genseq.value() + 5*barMaxPerIteration)
             if mk1['Enable']:
-                if mk1['old']:
-                    tgg.genSequences(t, False, 'mk1', l, L_ini,
-                                          L_fin, alpha_ini, alpha_fin, 'old') 
-                if mk1['new']:
-                    tgg.genSequences(t, False, 'mk1', l, L_ini,
-                                          L_fin, alpha_ini, alpha_fin, 'new') 
-                if mk1['dmark']:
-                    tgg.genSequences(t, False, 'mk1', l, L_ini,
-                                          L_fin, alpha_ini, alpha_fin, 'dmark')
+                if mk1['moore']:
+                    mrange = range(mk1['ini'], mk1['end'] + 1)
+                else:
+                    mrange = [-1]
+                for m in mrange:
+                    if mk1['old']:
+                        tgg.genSequences(t, False, 'mk1', l, L_ini,
+                                              L_fin, alpha_ini, alpha_fin, 'old', m) 
+                    if mk1['new']:
+                        tgg.genSequences(t, False, 'mk1', l, L_ini,
+                                              L_fin, alpha_ini, alpha_fin, 'new', m) 
+                    if mk1['dmark']:
+                        tgg.genSequences(t, False, 'mk1', l, L_ini,
+                                              L_fin, alpha_ini, alpha_fin, 'dmark', m)
             self.bar_genseq.setValue(self.bar_genseq.value() + 45*barMaxPerIteration) 
             if mk2['Enable']:
                 if mk2['old']:
@@ -246,15 +266,20 @@ class ExampleApp(QtGui.QMainWindow, generatr.Ui_Generatr):
                 if dmark['Enable']:
                     tgg.calcProbs(t, False, 'dmark', Le, dmark['ini'], dmark['end']) 
                 if mk1['Enable']:
-                    if mk1['old']:
-                        tgg.calcProbs(t, False, 'mk1', Le, L_ini,
-                                              L_fin, alpha_ini, alpha_fin, 'old') 
-                    if mk1['new']:
-                        tgg.calcProbs(t, False, 'mk1', Le, L_ini,
-                                              L_fin, alpha_ini, alpha_fin, 'new') 
-                    if mk1['dmark']:
-                        tgg.calcProbs(t, False, 'mk1', Le, L_ini,
-                                              L_fin, alpha_ini, alpha_fin, 'dmark')
+                    if mk1['moore']:
+                        mrange = range(mk1['ini'], mk1['end'] + 1)
+                    else:
+                        mrange = [-1]
+                    for m in mrange:
+                        if mk1['old']:
+                            tgg.calcProbs(t, False, 'mk1', Le, L_ini,
+                                                  L_fin, alpha_ini, alpha_fin, 'old', m) 
+                        if mk1['new']:
+                            tgg.calcProbs(t, False, 'mk1', Le, L_ini,
+                                                  L_fin, alpha_ini, alpha_fin, 'new', m) 
+                        if mk1['dmark']:
+                            tgg.calcProbs(t, False, 'mk1', Le, L_ini,
+                                                  L_fin, alpha_ini, alpha_fin, 'dmark', m)
                 if mk2['Enable']:
                     if mk2['old']:
                         tgg.calcProbs(t, False, 'mk2', Le, L_ini,
@@ -272,12 +297,17 @@ class ExampleApp(QtGui.QMainWindow, generatr.Ui_Generatr):
                 if dmark['Enable']:
                     tgg.calcEntropies(t, 'dmark', Le, '') 
                 if mk1['Enable']:
-                    if mk1['old']:
-                        tgg.calcEntropies(t, 'mk1', Le, 'old') 
-                    if mk1['new']:
-                        tgg.calcEntropies(t, 'mk1', Le, 'new') 
-                    if mk1['dmark']:
-                        tgg.calcEntropies(t, 'mk1', Le, 'dmark') 
+                    if mk1['moore']:
+                        mrange = range(mk1['ini'], mk1['end'] + 1)
+                    else:
+                        mrange = [-1]
+                    for m in mrange:
+                        if mk1['old']:
+                            tgg.calcEntropies(t, 'mk1', Le, 'old', m) 
+                        if mk1['new']:
+                            tgg.calcEntropies(t, 'mk1', Le, 'new', m) 
+                        if mk1['dmark']:
+                            tgg.calcEntropies(t, 'mk1', Le, 'dmark', m) 
                 if mk2['Enable']:
                     if mk2['old']:
                         tgg.calcEntropies(t, 'mk2', Le, 'old') 
@@ -291,12 +321,17 @@ class ExampleApp(QtGui.QMainWindow, generatr.Ui_Generatr):
                 if dmark['Enable']:
                     tgg.calcKLD(t, 'dmark', Lk, '') 
                 if mk1['Enable']:
-                    if mk1['old']:
-                        tgg.calcKLD(t, 'mk1', Lk, 'old') 
-                    if mk1['new']:
-                        tgg.calcKLD(t, 'mk1', Lk, 'new') 
-                    if mk1['dmark']:
-                        tgg.calcKLD(t, 'mk1', Lk, 'dmark') 
+                    if mk1['moore']:
+                        mrange = range(mk1['ini'], mk1['end'] + 1)
+                    else:
+                        mrange = [-1]
+                    for m in mrange:
+                        if mk1['old']:
+                            tgg.calcKLD(t, 'mk1', Lk, 'old', m) 
+                        if mk1['new']:
+                            tgg.calcKLD(t, 'mk1', Lk, 'new', m) 
+                        if mk1['dmark']:
+                            tgg.calcKLD(t, 'mk1', Lk, 'dmark', m) 
                 if mk2['Enable']:
                     if mk2['old']:
                         tgg.calcKLD(t, 'mk2', Lk, 'old') 
@@ -308,12 +343,17 @@ class ExampleApp(QtGui.QMainWindow, generatr.Ui_Generatr):
                 if dmark['Enable']:
                     tgg.calc_l1_metric(t, 'dmark', Ll1, '') 
                 if mk1['Enable']:
-                    if mk1['old']:
-                        tgg.calc_l1_metric(t, 'mk1', Ll1, 'old') 
-                    if mk1['new']:
-                        tgg.calc_l1_metric(t, 'mk1', Ll1, 'new') 
-                    if mk1['dmark']:
-                        tgg.calc_l1_metric(t, 'mk1', Ll1, 'dmark') 
+                    if mk1['moore']:
+                        mrange = range(mk1['ini'], mk1['end'] + 1)
+                    else:
+                        mrange = [-1]
+                    for m in mrange:
+                        if mk1['old']:
+                            tgg.calc_l1_metric(t, 'mk1', Ll1, 'old', m) 
+                        if mk1['new']:
+                            tgg.calc_l1_metric(t, 'mk1', Ll1, 'new', m) 
+                        if mk1['dmark']:
+                            tgg.calc_l1_metric(t, 'mk1', Ll1, 'dmark', m) 
                 if mk2['Enable']:
                     if mk2['old']:
                         tgg.calc_l1_metric(t, 'mk2', Ll1, 'old') 
@@ -325,12 +365,17 @@ class ExampleApp(QtGui.QMainWindow, generatr.Ui_Generatr):
                 if dmark['Enable']:
                     tgg.calc_kld_metric(t, 'dmark', Lkm, '') 
                 if mk1['Enable']:
-                    if mk1['old']:
-                        tgg.calc_kld_metric(t, 'mk1', Lkm, 'old') 
-                    if mk1['new']:
-                        tgg.calc_kld_metric(t, 'mk1', Lkm, 'new') 
-                    if mk1['dmark']:
-                        tgg.calc_kld_metric(t, 'mk1', Lkm, 'dmark') 
+                    if mk1['moore']:
+                        mrange = range(mk1['ini'], mk1['end'] + 1)
+                    else:
+                        mrange = [-1]
+                    for m in mrange:
+                        if mk1['old']:
+                            tgg.calc_kld_metric(t, 'mk1', Lkm, 'old', m) 
+                        if mk1['new']:
+                            tgg.calc_kld_metric(t, 'mk1', Lkm, 'new', m) 
+                        if mk1['dmark']:
+                            tgg.calc_kld_metric(t, 'mk1', Lkm, 'dmark', m) 
                 if mk2['Enable']:
                     if mk2['old']:
                         tgg.calc_kld_metric(t, 'mk2', Lkm, 'old') 
@@ -345,12 +390,17 @@ class ExampleApp(QtGui.QMainWindow, generatr.Ui_Generatr):
                 if dmark['Enable']:
                     tgg.calcAutoCorr(t, 'dmark', La, False, dmark['ini'], dmark['end'], alpha_ini, alpha_fin, '')
                 if mk1['Enable']:
-                    if mk1['old']:
-                        tgg.calcAutoCorr(t, 'mk1', La, False, L_ini, L_fin, alpha_ini, alpha_fin, 'old') 
-                    if mk1['new']:
-                        tgg.calcAutoCorr(t, 'mk1', La, False, L_ini, L_fin, alpha_ini, alpha_fin, 'new') 
-                    if mk1['dmark']:
-                        tgg.calcAutoCorr(t, 'mk1', La, False, L_ini, L_fin, alpha_ini, alpha_fin, 'dmark') 
+                    if mk1['moore']:
+                        mrange = range(mk1['ini'], mk1['end'] + 1)
+                    else:
+                        mrange = [-1]
+                    for m in mrange:
+                        if mk1['old']:
+                            tgg.calcAutoCorr(t, 'mk1', La, False, L_ini, L_fin, alpha_ini, alpha_fin, 'old', m) 
+                        if mk1['new']:
+                            tgg.calcAutoCorr(t, 'mk1', La, False, L_ini, L_fin, alpha_ini, alpha_fin, 'new', m) 
+                        if mk1['dmark']:
+                            tgg.calcAutoCorr(t, 'mk1', La, False, L_ini, L_fin, alpha_ini, alpha_fin, 'dmark', m) 
                 if mk2['Enable']:
                     if mk2['old']:
                         tgg.calcAutoCorr(t, 'mk2', La, False, L_ini, L_fin, alpha_ini, alpha_fin, 'old') 

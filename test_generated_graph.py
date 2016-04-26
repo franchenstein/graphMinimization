@@ -85,7 +85,7 @@ def genDMarkovGraphs(t, d_ini, d_end):
         path = '../Resultados/graph_'+t+'_dmarkov_'+str(d)+'.txt'
         dm.saveGraphFile(path) 
         
-def genMk1Graphs(t, L_ini, L_end, alpha_ini, alpha_end, expn):
+def genMk1Graphs(t, L_ini, L_end, alpha_ini, alpha_end, expn, mooreIters = -1):
     Lrange = range(L_ini, L_end + 2, 2)
     if alpha_ini == alpha_end:
         alpharange = [alpha_ini]
@@ -119,9 +119,13 @@ def genMk1Graphs(t, L_ini, L_end, alpha_ini, alpha_end, expn):
                     p1.addToPartition(q.pop(0))
                 P.append(p1)
             PS = ps.PartitionSet(P)
-            ip = gm.moore(PS, h)
+            ip = gm.moore(PS, h, mooreIters)
             j = ip.recoverGraph(h)
-            path = '../Resultados/graph_'+t+'_generated_L_'+str(L)+'_alpha_'+str(alpha)+'_mk1_exp_'+str(expn)+'.txt'
+            path = '../Resultados/graph_'+t+'_generated_L_'+str(L)+'_alpha_'+str(alpha)+'_mk1_exp_'+str(expn)
+            if mooreIters > 0:
+                path += '_mooreUpTo_'+str(mooreIters)+'.txt'
+            else:
+                path += '.txt'
             j.saveGraphFile(path)
             
 def genMk2Graphs(t, L_ini, L_end, alpha_ini, alpha_end, expn):
@@ -158,7 +162,8 @@ def genMk2Graphs(t, L_ini, L_end, alpha_ini, alpha_end, expn):
             m.saveGraphFile(path)
             
 def genSequences(t, orig, alg, l, L_ini = 6, L_end = 12, 
-                      alpha_ini = 0.8, alpha_end = 0.99, expn = 'dmark'):
+                      alpha_ini = 0.8, alpha_end = 0.99, expn = 'dmark', 
+                      mooreIters = -1):
     g = pg.ProbabilisticGraph([], [])
     if orig:
         if t == 'even' or t == 'tri':
@@ -195,23 +200,37 @@ def genSequences(t, orig, alg, l, L_ini = 6, L_end = 12,
                 np.append(alpharange, 0.99)
             for alpha in alpharange:
                 for L in Lrange:
-                    graph_path = '../Resultados/graph_'+t+'_generated_L_'+str(L)+'_alpha_'+str(alpha)+'_'+alg+'_exp_'+str(expn)+'.txt'
+                    graph_path = '../Resultados/graph_'+t+'_generated_L_'+str(L)+'_alpha_'+str(alpha)+'_'+alg+'_exp_'+str(expn)
+                    if mooreIters > 0:
+                        graph_path += '_mooreUpTo_'+str(mooreIters)+'.txt'
+                    else:
+                        graph_path += '.txt'
                     g.parseGraphFile(graph_path)
                     data = g.generateSequence(l, g.states[0])
-                    sequence_path = '../Resultados/sequence_'+t+'_generated_L_'+str(L)+'_alpha_'+str(alpha)+'_'+alg+'_exp_'+str(expn)+'.json'    
+                    sequence_path = '../Resultados/sequence_'+t+'_generated_L_'+str(L)+'_alpha_'+str(alpha)+'_'+alg+'_exp_'+str(expn)
+                    if mooreIters > 0:
+                        sequence_path += '_mooreUpTo_'+str(mooreIters)+'.json'
+                    else:
+                        sequence_path += '.json'    
                     f = open(sequence_path, 'w')
                     json.dump(data, f)
                     f.close()
                     
-def openSequences(t, alg, orig, L_ini, L_end, alpha_ini, alpha_end, expn):
+def openSequences(t, alg, orig, L_ini, L_end, alpha_ini, alpha_end, expn, mooreIters = -1):
     s = []  
-    p_path = '../Resultados/probabilities_' + t + '_' + alg + '_' + expn +'.json'
-    pcond_path = '../Resultados/conditional_probabilities_' + t + '_' + alg + '_' + expn +'.json'               
+    p_path = '../Resultados/probabilities_' + t + '_' + alg + '_' + expn
+    pcond_path = '../Resultados/conditional_probabilities_' + t + '_' + alg + '_' + expn
+    if mooreIters > 0:
+        p_path += '_mooreUpTo_'+str(mooreIters)+'.json'
+        pcond_path += '_mooreUpTo_'+str(mooreIters)+'.json'
+    else:
+        p_path += '.json'
+        pcond_path += '.json'             
     if orig:
         if t == "henon":
             path = "../../Sequencias/MH6.dat"
         elif t == "even":
-            path = "../Resultados/sequence_evenshift_original_10000000.txt"
+            path = "../Resultados/sequence_evenshift_10000000_original.txt"
         elif t == "tri":
             path = "../Resultados/sequence_trishift_original_10000000.txt"
         elif t == "10dbq1":
@@ -241,15 +260,19 @@ def openSequences(t, alg, orig, L_ini, L_end, alpha_ini, alpha_end, expn):
                 np.append(alpharange, 0.99)
             for alpha in alpharange:
                 for L in Lrange:
-                    seq_path = '../Resultados/sequence_'+t+'_generated_L_'+str(L)+'_alpha_'+str(alpha)+'_'+alg+'_exp_'+str(expn)+'.json'
+                    seq_path = '../Resultados/sequence_'+t+'_generated_L_'+str(L)+'_alpha_'+str(alpha)+'_'+alg+'_exp_'+str(expn)
+                    if mooreIters > 0:
+                        seq_path += '_mooreUpTo_'+str(mooreIters)+'.json'
+                    else:
+                        seq_path += '.json'  
                     f = open(seq_path, 'r')
                     s.append(json.load(f))
                     f.close()                      
     return s, p_path, pcond_path
                     
 def calcProbs(t, orig, alg, l, L_ini = 6, L_end = 12, 
-                      alpha_ini = 0.8, alpha_end = 0.99, expn = ''):
-        s, p_path, pcond_path = openSequences(t, alg, orig, L_ini, L_end, alpha_ini, alpha_end, expn)
+                      alpha_ini = 0.8, alpha_end = 0.99, expn = '', mooreIters = -1):
+        s, p_path, pcond_path = openSequences(t, alg, orig, L_ini, L_end, alpha_ini, alpha_end, expn, mooreIters)
         if not os.path.isfile(p_path):
             P, P_cond = calcProbsFromSeqs(s, l)
             f = open(p_path, 'w')
@@ -272,10 +295,16 @@ def calcProbsFromSeqs(s, L):
         P_cond.append(pcond)
     return P, P_cond     
     
-def calcEntropies(t, alg, L, expn):
+def calcEntropies(t, alg, L, expn, mooreIters = -1):
     H = []  
-    p_path = '../Resultados/probabilities_' + t + '_' + alg + '_' + expn +'.json'
-    pcond_path = '../Resultados/conditional_probabilities_' + t + '_' + alg + '_' + expn +'.json'
+    p_path = '../Resultados/probabilities_' + t + '_' + alg + '_' + expn
+    pcond_path = '../Resultados/conditional_probabilities_' + t + '_' + alg + '_' + expn
+    if mooreIters > 0:
+        p_path += '_mooreUpTo_'+str(mooreIters)+'.json'
+        pcond_path += '_mooreUpTo_'+str(mooreIters)+'.json'
+    else:
+        p_path += '.json'
+        pcond_path += '.json' 
     f = open(p_path, 'r')
     P = json.load(f)
     f.close()
@@ -287,18 +316,26 @@ def calcEntropies(t, alg, L, expn):
         h = obst.calcCondEntropy(p, P_cond[i], L)
         i += 1
         H.append(h)
-    h_path = '../Resultados/entropies_'+t+'_'+alg+'_' + expn +'.json'
+    h_path = '../Resultados/entropies_'+t+'_'+alg+'_' + expn
+    if mooreIters > 0:
+        h_path += '_mooreUpTo_'+str(mooreIters)+'.json'
+    else:
+        h_path += '.json' 
     f = open(h_path, 'w')
     json.dump(H, f)
     f.close()     
     
-def calcKLD(t, alg, L, expn = ''):
+def calcKLD(t, alg, L, expn = '', mooreIters = -1):
     K = []  
     orig_path = '../Resultados/probabilities_' + t + '_original_.json'
     f = open(orig_path, 'r')
     Porig = json.load(f)
     f.close()
-    p_path = '../Resultados/probabilities_' + t + '_' + alg + '_' + expn +'.json'
+    p_path = '../Resultados/probabilities_' + t + '_' + alg + '_' + expn
+    if mooreIters > 0:
+        p_path += '_mooreUpTo_'+str(mooreIters)+'.json'
+    else:
+        p_path += '.json' 
     f = open(p_path, 'r')
     P = json.load(f)
     f.close()
@@ -308,18 +345,26 @@ def calcKLD(t, alg, L, expn = ''):
     for p in P:
         k = obst.calcKLDivergence(p0, p, L)
         K.append(k)
-    k_path = '../Resultados/kldivergences_'+t+'_'+alg+'_' + expn +'.json'
+    k_path = '../Resultados/kldivergences_'+t+'_'+alg+'_' + expn
+    if mooreIters > 0:
+        k_path += '_mooreUpTo_'+str(mooreIters)+'.json'
+    else:
+        k_path += '.json' 
     f = open(k_path, 'w')
     json.dump(K, f)
     f.close() 
     
-def calc_l1_metric(t, alg, N, expn = ''):
+def calc_l1_metric(t, alg, N, expn = '', mooreIters = -1):
     L1 = []  
     orig_path = '../Resultados/probabilities_' + t + '_original_.json'
     f = open(orig_path, 'r')
     Porig = json.load(f)
     f.close()
-    p_path = '../Resultados/probabilities_' + t + '_' + alg + '_' + expn +'.json'
+    p_path = '../Resultados/probabilities_' + t + '_' + alg + '_' + expn
+    if mooreIters > 0:
+        p_path += '_mooreUpTo_'+str(mooreIters)+'.json'
+    else:
+        p_path += '.json' 
     f = open(p_path, 'r')
     P = json.load(f)
     f.close()
@@ -329,18 +374,26 @@ def calc_l1_metric(t, alg, N, expn = ''):
     for p in P:
         l1 = obst.l1Metric(p0, p, N-1)
         L1.append(l1)
-    l_path = '../Resultados/l1metric_'+t+'_'+alg+'_' + expn +'.json'
+    l_path = '../Resultados/l1metric_'+t+'_'+alg+'_' + expn
+    if mooreIters > 0:
+        l_path += '_mooreUpTo_'+str(mooreIters)+'.json'
+    else:
+        l_path += '.json' 
     f = open(l_path, 'w')
     json.dump(L1, f)
     f.close()
 
-def calc_kld_metric(t, alg, N, expn = ''):
+def calc_kld_metric(t, alg, N, expn = '', mooreIters = -1):
     KM = []  
     orig_path = '../Resultados/probabilities_' + t + '_original_.json'
     f = open(orig_path, 'r')
     Porig = json.load(f)
     f.close()
-    p_path = '../Resultados/probabilities_' + t + '_' + alg + '_' + expn +'.json'
+    p_path = '../Resultados/probabilities_' + t + '_' + alg + '_' + expn 
+    if mooreIters > 0:
+        p_path += '_mooreUpTo_'+str(mooreIters)+'.json'
+    else:
+        p_path += '.json' 
     f = open(p_path, 'r')
     P = json.load(f)
     f.close()
@@ -350,19 +403,27 @@ def calc_kld_metric(t, alg, N, expn = ''):
     for p in P:
         km = obst.l1Metric(p0, p, N-1)
         KM.append(km)
-    km_path = '../Resultados/kldmetric_'+t+'_'+alg+'_' + expn +'.json'
+    km_path = '../Resultados/kldmetric_'+t+'_'+alg+'_' + expn
+    if mooreIters > 0:
+        km_path += '_mooreUpTo_'+str(mooreIters)+'.json'
+    else:
+        km_path += '.json' 
     f = open(km_path, 'w')
     json.dump(KM, f)
     f.close()
     
-def calcAutoCorr(t, alg, L, orig, L_ini, L_end, alpha_ini, alpha_end, expn):
-    s, dum, mud = openSequences(t, alg, orig, L_ini, L_end, alpha_ini, alpha_end, expn)
+def calcAutoCorr(t, alg, L, orig, L_ini, L_end, alpha_ini, alpha_end, expn, mooreIters = -1):
+    s, dum, mud = openSequences(t, alg, orig, L_ini, L_end, alpha_ini, alpha_end, expn, mooreIters)
     A = []
     for seq in s:
         a = obst.autocorrelation(seq,L)
         A.append(a)
     print "Saving Autocorrelations"
-    path = "../Resultados/autocorrelations_"+t+"_"+alg+"_" + expn +".json"
+    path = "../Resultados/autocorrelations_"+t+"_"+alg+"_" + expn 
+    if mooreIters > 0:
+        path += '_mooreUpTo_'+str(mooreIters)+'.json'
+    else:
+        path += '.json' 
     f = open(path, 'w')
     json.dump(A, f)
     f.close()
@@ -382,10 +443,15 @@ def plotEntropies(t, dmark, mk1, mk2, L_ini, L_fin, alpha_ini, alpha_fin, D_ini,
     f.close()
     algs = []
     expn = []
+    m = False
     if dmark['Enable'] == True:
         algs.append('dmark')
     if mk1['Enable'] == True:
         algs.append('mk1')
+        if mk1['moore'] == True:
+            m = True
+            Mi = mk1['ini']
+            Mf = mk1['end']
     if mk2['Enable'] == True:
         algs.append('mk2')
     for alg in algs:
@@ -469,10 +535,15 @@ def plotEntropiesByNoStates(t, dmark, mk1, mk2, L_ini, L_fin, alpha_ini, alpha_f
     f.close()
     algs = []
     expn = []
+    m = False
     if dmark['Enable'] == True:
         algs.append('dmark')
     if mk1['Enable'] == True:
         algs.append('mk1')
+        if mk1['moore'] == True:
+            m = True
+            Mi = mk1['ini']
+            Mf = mk1['end']
     if mk2['Enable'] == True:
         algs.append('mk2')
     xranges = []
@@ -499,11 +570,17 @@ def plotEntropiesByNoStates(t, dmark, mk1, mk2, L_ini, L_fin, alpha_ini, alpha_f
                 opts = mk2
             expns = []
             for k in opts.keys():
-                if k != 'Enable':
+                if k != 'Enable' and k != 'moore' and k != 'ini' and k != 'end':
                     if opts[k]:
                         expns.append(k) 
-                        hpath = '../Resultados/entropies_'+t+'_'+alg+'_'+k+'.json'
-                        hpaths.append(hpath)
+                        if m:
+                            mrange = range(Mi, Mf+1)
+                            for M in mrange:
+                                hpath = '../Resultados/entropies_'+t+'_'+alg+'_'+k+'_mooreUpTo_'+str(M)+'.json'
+                                hpaths.append(hpath)                                
+                        else:
+                            hpath = '../Resultados/entropies_'+t+'_'+alg+'_'+k+'.json'
+                            hpaths.append(hpath)
             #Labels:
             Lrange = range(L_ini, L_fin + 2, 2)
             if alpha_ini == alpha_fin:
@@ -514,16 +591,27 @@ def plotEntropiesByNoStates(t, dmark, mk1, mk2, L_ini, L_fin, alpha_ini, alpha_f
             if alpha_fin == 0.99:
                 np.append(alpharange, 0.99)
             for expn in expns:
-                x = []
-                for alpha in alpharange:
-                    for L in Lrange:
-                        graph_path = '../Resultados/graph_'+t+'_generated_L_'+str(L)+'_alpha_'+str(alpha)+'_'+alg+'_exp_'+str(expn)+'.txt'
-                        g.parseGraphFile(graph_path)
-                        l = len(g.states)
-                        x.append(l)
-                lb = alg + ", " + expn
-                labels.append(lb)
-                xranges.append(x)                   
+                if m:
+                    mrange = range(Mi, Mf + 1)
+                else:
+                    mrange = [-1]
+                for M in mrange:
+                    x = []
+                    for alpha in alpharange:
+                        for L in Lrange:
+                            if m:
+                                graph_path = '../Resultados/graph_'+t+'_generated_L_'+str(L)+'_alpha_'+str(alpha)+'_'+alg+'_exp_'+str(expn)+'_mooreUpTo_'+str(M)+'.txt'
+                            else:
+                                graph_path = '../Resultados/graph_'+t+'_generated_L_'+str(L)+'_alpha_'+str(alpha)+'_'+alg+'_exp_'+str(expn)+'.txt'
+                            g.parseGraphFile(graph_path)
+                            l = len(g.states)
+                            x.append(l)
+                    if m:
+                        lb = alg + ", " + expn + ', Moore up to ' + str(M)
+                    else:
+                        lb = alg + ", " + expn
+                    labels.append(lb)
+                    xranges.append(x)                   
            
         for hpath in hpaths:     
             f = open(hpath, 'r')
@@ -533,9 +621,7 @@ def plotEntropiesByNoStates(t, dmark, mk1, mk2, L_ini, L_fin, alpha_ini, alpha_f
             f.close()
             
      
-    i = 0     
-    print len(H)
-    print len(xranges)     
+    i = 0         
     for h in H:
         plt.semilogx(xranges[i], h, marker = 'o', label = labels[i])               
         i+=1
@@ -551,10 +637,15 @@ def plotKLD(t, dmark, mk1, mk2, L_ini, L_fin, alpha_ini, alpha_fin, D_ini, D_fin
     algs = []
     expn = []
     ranges = []
+    m = False
     if dmark['Enable'] == True:
         algs.append('dmark')
     if mk1['Enable'] == True:
         algs.append('mk1')
+        if mk1['moore'] == True:
+            m = True
+            Mi = mk1['ini']
+            Mf = mk1['end']
     if mk2['Enable'] == True:
         algs.append('mk2')
     for alg in algs:
@@ -582,11 +673,17 @@ def plotKLD(t, dmark, mk1, mk2, L_ini, L_fin, alpha_ini, alpha_fin, D_ini, D_fin
                 opts = mk2
             expns = []
             for k in opts.keys():
-                if k != 'Enable':
+                if k != 'Enable' and k != 'moore' and k != 'ini' and k != 'end':
                     if opts[k]:
                         expns.append(k) 
-                        kpath = '../Resultados/kldivergences_'+t+'_'+alg+'_'+k+'.json'
-                        kpaths.append(kpath)
+                        if m:
+                            mrange = range(Mi, Mf + 1)
+                            for M in mrange:
+                                kpath = '../Resultados/kldivergences_'+t+'_'+alg+'_'+k+'_mooreUpTo_'+str(M)+'.json'
+                                kpaths.append(kpath)
+                        else:
+                            kpath = '../Resultados/kldivergences_'+t+'_'+alg+'_'+k+'.json'
+                            kpaths.append(kpath)
                         #Labels:
                         if byNoStates:
                             Lrange = range(L_ini, L_fin + 2, 2)
@@ -598,18 +695,31 @@ def plotKLD(t, dmark, mk1, mk2, L_ini, L_fin, alpha_ini, alpha_fin, D_ini, D_fin
                             if alpha_fin == 0.99:
                                 np.append(alpharange, 0.99)
                             for expn in expns:
-                                x =[]
-                                for alpha in alpharange:
-                                    for L in Lrange:
-                                        graph_path = '../Resultados/graph_'+t+'_generated_L_'+str(L)+'_alpha_'+str(alpha)+'_'+alg+'_exp_'+str(expn)+'.txt'
-                                        g.parseGraphFile(graph_path)
-                                        l = len(g.states)
-                                        x.append(l)
-                                ranges.append(x)
+                                if m:
+                                    mrange = range(Mi, Mf + 1)
+                                else:
+                                    mrange = [-1]
+                                for M in mrange:
+                                    x = []
+                                    for alpha in alpharange:
+                                        for L in Lrange:
+                                            if m:
+                                                graph_path = '../Resultados/graph_'+t+'_generated_L_'+str(L)+'_alpha_'+str(alpha)+'_'+alg+'_exp_'+str(expn)+'_mooreUpTo_'+str(M)+'.txt'
+                                            else:
+                                                graph_path = '../Resultados/graph_'+t+'_generated_L_'+str(L)+'_alpha_'+str(alpha)+'_'+alg+'_exp_'+str(expn)+'.txt'
+                                            g.parseGraphFile(graph_path)
+                                            l = len(g.states)
+                                            x.append(l)
+                                    ranges.append(x)
                         else:
                             ranges.append(range(L_ini, L_fin + 2, 2))
-                        lb = "Original Sequence vs. " + alg + " " + k + "expansion"
-                        labels.append(lb)                 
+                        if m:
+                            for M in mrange:
+                                lb = "Original Sequence vs. " + alg + " " + k + "expansion, Moore up to " + str(M)
+                                labels.append(lb)
+                        else:
+                            lb = "Original Sequence vs. " + alg + " " + k + "expansion"
+                            labels.append(lb)             
            
         for kpath in kpaths:     
             f = open(kpath, 'r')
@@ -632,10 +742,15 @@ def plotL1Metric(t, dmark, mk1, mk2, L_ini, L_fin, alpha_ini, alpha_fin, D_ini, 
     algs = []
     expn = []
     ranges = []
+    m = False
     if dmark['Enable'] == True:
         algs.append('dmark')
     if mk1['Enable'] == True:
         algs.append('mk1')
+        if mk1['moore'] == True:
+            m = True
+            Mi = mk1['ini']
+            Mf = mk1['end']
     if mk2['Enable'] == True:
         algs.append('mk2')
     for alg in algs:
@@ -663,11 +778,17 @@ def plotL1Metric(t, dmark, mk1, mk2, L_ini, L_fin, alpha_ini, alpha_fin, D_ini, 
                 opts = mk2
             expns = []
             for k in opts.keys():
-                if k != 'Enable':
+                if k != 'Enable' and k != 'moore' and k != 'ini' and k != 'end':
                     if opts[k]:
                         expns.append(k) 
-                        kpath = '../Resultados/l1metric_'+t+'_'+alg+'_'+k+'.json'
-                        kpaths.append(kpath)
+                        if m:
+                            mrange = range(Mi, Mf + 1)
+                            for M in mrange:
+                                kpath = '../Resultados/l1metric_'+t+'_'+alg+'_'+k+'_mooreUpTo_'+str(M)+'.json'
+                                kpaths.append(kpath)
+                        else:
+                            kpath = '../Resultados/l1metric_'+t+'_'+alg+'_'+k+'.json'
+                            kpaths.append(kpath)
                         #Labels:
                         if byNoStates:
                             Lrange = range(L_ini, L_fin + 2, 2)
@@ -679,18 +800,31 @@ def plotL1Metric(t, dmark, mk1, mk2, L_ini, L_fin, alpha_ini, alpha_fin, D_ini, 
                             if alpha_fin == 0.99:
                                 np.append(alpharange, 0.99)
                             for expn in expns:
-                                x =[]
-                                for alpha in alpharange:
-                                    for L in Lrange:
-                                        graph_path = '../Resultados/graph_'+t+'_generated_L_'+str(L)+'_alpha_'+str(alpha)+'_'+alg+'_exp_'+str(expn)+'.txt'
-                                        g.parseGraphFile(graph_path)
-                                        l = len(g.states)
-                                        x.append(l)
-                                ranges.append(x)
+                                if m:
+                                    mrange = range(Mi, Mf + 1)
+                                else:
+                                    mrange = [-1]
+                                for M in mrange:
+                                    x = []
+                                    for alpha in alpharange:
+                                        for L in Lrange:
+                                            if m:
+                                                graph_path = '../Resultados/graph_'+t+'_generated_L_'+str(L)+'_alpha_'+str(alpha)+'_'+alg+'_exp_'+str(expn)+'_mooreUpTo_'+str(M)+'.txt'
+                                            else:
+                                                graph_path = '../Resultados/graph_'+t+'_generated_L_'+str(L)+'_alpha_'+str(alpha)+'_'+alg+'_exp_'+str(expn)+'.txt'
+                                            g.parseGraphFile(graph_path)
+                                            l = len(g.states)
+                                            x.append(l)
+                                    ranges.append(x)
                         else:
                             ranges.append(range(L_ini, L_fin + 2, 2))
-                        lb = "Original Sequence vs. " + alg + " " + k + "expansion"
-                        labels.append(lb)                 
+                        if m:
+                            for M in mrange:
+                                lb = "Original Sequence vs. " + alg + " " + k + "expansion, Moore up to " + str(M)
+                                labels.append(lb)
+                        else:
+                            lb = "Original Sequence vs. " + alg + " " + k + "expansion"
+                            labels.append(lb)                 
            
         for kpath in kpaths:     
             f = open(kpath, 'r')
@@ -1005,7 +1139,7 @@ def generateSequences(t, d, ranges):
     elif t == "even":
         wsyn = "0"
         d = obst.generate("even", 10000000, [0.99])
-        path = "./Resultados/sequence_evenshift_original_10000000.txt"
+        path = "./Resultados/sequence_evenshift_10000000_original.txt"
         f = open(path, 'w')
         f.write(d)
         f.close()
@@ -1202,7 +1336,7 @@ def compareSequences(t, l, a, e, ac, k, d, ranges):
     if t == "henon":
         path = "../Sequencias/MH6.dat"
     elif t == "even":
-        path = "./Resultados/sequence_evenshift_original_10000000.txt"
+        path = "./Resultados/sequence_evenshift_10000000_original.txt"
     elif t == "tri":
         path = "./Resultados/sequence_trishift_original_10000000.txt"
     elif t == "10dbq1":
